@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
-import { Link } from 'react-router-dom';
 import { loginUserByCredentials } from '../firebase/providers';
+import { Link, useNavigate } from 'react-router-dom';
 
 const LoginPage = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
-    const [successMessage, setSuccessMessage] = useState<string | null>(null);
+    const navigate = useNavigate();
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -16,7 +16,6 @@ const LoginPage = () => {
         if (isSubmitting) return;
 
         setErrorMessage(null);
-        setSuccessMessage(null);
         setIsSubmitting(true);
 
         try {
@@ -28,7 +27,7 @@ const LoginPage = () => {
             }
 
             setPassword('');
-            setSuccessMessage('Sesión iniciada correctamente.');
+            navigate('/feed', { replace: true });
         } catch {
             setErrorMessage('Ocurrió un error inesperado. Inténtalo de nuevo.');
         } finally {
@@ -93,13 +92,7 @@ const LoginPage = () => {
                                         {errorMessage}
                                     </div>
                                 )}
-
-                                {successMessage && (
-                                    <div className="alert alert-success" role="status">
-                                        {successMessage}
-                                    </div>
-                                )}
-
+                                
                                 <button
                                     type="submit"
                                     className="btn btn-dark btn-lg w-100 fw-bold rounded-pill py-2"
