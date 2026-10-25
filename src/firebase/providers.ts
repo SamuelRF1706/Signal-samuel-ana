@@ -1,45 +1,65 @@
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { FirebaseAuth } from "./config";
+import { FirebaseError } from 'firebase/app';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { FirebaseAuth } from './config';
 
-interface AuthResult {
-  ok: boolean;
-  uid: string;
-  email: string;
-  displayName: string | null;
-  photoURL: string | null;
+interface AuthSuccessResult {
+    ok: true;
+    uid: string;
+    email: string | null;
+    displayName: string | null;
+    photoURL: string | null;
 }
 
 interface AuthErrorResult {
-  ok: boolean;
-  errorMessage: string;
+    ok: false;
+    errorMessage: string;
 }
 
+type AuthResult = AuthSuccessResult | AuthErrorResult;
+
 export const loginUserByCredentials = async (
-  email: string,
-  password: string,
-): Promise<AuthResult | AuthErrorResult> => {
-  try {
-    const result = await signInWithEmailAndPassword(
-      FirebaseAuth,
-      email,
-      password,
-    );
+    email: string,
+    password: string,
+): Promise<AuthResult> => {
+    try {
+        const { user } = await signInWithEmailAndPassword(
+            FirebaseAuth,
+            email,
+            password,
+        );
 
-    const user = result.user;
+        return {
+            ok: true,
+            uid: user.uid,
+            email: user.email,
+            displayName: user.displayName,
+            photoURL: user.photoURL,
+        };
+    } catch (error: unknown) {
+        let errorMessage = 'No fue posible iniciar sesión. Inténtalo de nuevo.';
 
-    const { uid, displayName, photoURL } = user;
+        if (error instanceof FirebaseError) {
+            switch (error.code) {
+                case 'auth/invalid-credential':
+                case 'auth/user-not-found':
+                case 'auth/wrong-password':
+                case 'auth/invalid-email':
+                    errorMessage = 'El correo o la contraseña no son válidos.';
+                    break;
 
-    return {
-      ok: true,
-      uid,
-      email,
-      displayName,
-      photoURL,
-    };
-  } catch (error: any) {
-    return {
-      ok: false,
-      errorMessage: error.message
-    };
-  }
+                case 'auth/too-many-requests':
+                    errorMessage = 'Demasiados intentos. Inténtalo más tarde.';
+                    break;
+
+                case 'auth/network-request-failed':
+                    errorMessage = 'Revisa tu conexión a internet.';
+                    break;
+            }
+        }
+
+        return {
+            ok: false,
+            errorMessage,
+        };
+    }
 };
