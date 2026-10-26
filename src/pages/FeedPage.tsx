@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import type { User } from 'firebase/auth';
-import { Navigate } from 'react-router-dom';
+import { Link, Navigate, useLocation } from 'react-router-dom';
 import { FirebaseAuth } from '../firebase/config';
 import { getFeedAuthorIds, getFeedPage } from '../firebase/feed';
-import type {
-    FeedCursor,
-    FeedPageResult,
-} from '../firebase/feed';
+
+
+import type {FeedCursor, FeedPageResult,} from '../firebase/feed';
 
 const dateFormatter = new Intl.DateTimeFormat('es-CO', {
     dateStyle: 'medium',
@@ -19,6 +18,13 @@ interface FeedContentProps {
 }
 
 const FeedContent = ({ userId }: FeedContentProps) => {
+    const location = useLocation();
+
+    const successMessage =
+        location.state?.successMessage === 'Tweet publicado correctamente.'
+            ? 'Tweet publicado correctamente.'
+            : null;
+
     const [page, setPage] = useState<FeedPageResult | null>(null);
     const [cursors, setCursors] = useState<FeedCursor[]>([null]);
     const [pageIndex, setPageIndex] = useState(0);
@@ -96,7 +102,19 @@ const FeedContent = ({ userId }: FeedContentProps) => {
         <main className="container py-4">
             <div className="row justify-content-center">
                 <div className="col-12 col-md-8 col-lg-6">
-                    <h1 className="h3 fw-bold mb-4">Inicio</h1>
+                    <div className="d-flex align-items-center justify-content-between mb-4">
+                        <h1 className="h3 fw-bold mb-0">Inicio</h1>
+
+                        <Link to="/publish" className="btn btn-dark">
+                            Tweet
+                        </Link>
+                    </div>
+
+                    {successMessage && (
+                        <div className="alert alert-success" role="status">
+                            {successMessage}
+                        </div>
+                    )}
 
                     {isLoading ? (
                         <p role="status">Cargando publicaciones...</p>
