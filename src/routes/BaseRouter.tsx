@@ -2,7 +2,8 @@ import { Route, Routes } from "react-router-dom";
 import HomePage from "../pages/HomePage";
 import RegisterPage from "../pages/RegisterPage";
 import LoginPage from "../pages/LoginPage";
-import FeedPage from "../pages/FeedPage"
+import FeedPage from "../pages/FeedPage";
+import PublishTweetPage from '../pages/PublishTweetPage';
 
 export const BaseRouter = () => {
     return (
@@ -11,6 +12,7 @@ export const BaseRouter = () => {
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/feed" element={<FeedPage />} />
+            <Route path="/publish" element={<PublishTweetPage />} />
         </Routes>
     );
 }
