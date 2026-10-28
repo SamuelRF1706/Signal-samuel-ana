@@ -5,6 +5,8 @@ import LoginPage from "../pages/LoginPage";
 import FeedPage from "../pages/FeedPage";
 import PublishTweetPage from '../pages/PublishTweetPage';
 import ProfilePage from '../pages/ProfilePage';
+import FollowingPage from '../pages/FollowingPage';
+
 
 export const BaseRouter = () => {
     return (
@@ -15,6 +17,7 @@ export const BaseRouter = () => {
             <Route path="/feed" element={<FeedPage />} />
             <Route path="/publish" element={<PublishTweetPage />} />
             <Route path="/profile/:id" element={<ProfilePage />} />
+            <Route path="/following" element={<FollowingPage />} />
         </Routes>
     );
 }
