@@ -4,14 +4,9 @@ import type { User } from 'firebase/auth';
 import { Link, Navigate, useLocation } from 'react-router-dom';
 import { FirebaseAuth } from '../firebase/config';
 import { getFeedAuthorIds, getFeedPage } from '../firebase/feed';
+import TweetCard from '../ui/components/TweetCard';
 
-
-import type {FeedCursor, FeedPageResult,} from '../firebase/feed';
-
-const dateFormatter = new Intl.DateTimeFormat('es-CO', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-});
+import type { FeedCursor, FeedPageResult } from '../firebase/feed';
 
 interface FeedContentProps {
     userId: string;
@@ -138,35 +133,13 @@ const FeedContent = ({ userId }: FeedContentProps) => {
                             )}
 
                             {page?.tweets.map((tweet) => (
-                                <article
+                                <TweetCard
                                     key={tweet.id}
-                                    className="card mb-3"
-                                >
-                                    <div className="card-body">
-                                        <header className="mb-2">
-                                            <h2 className="h6 fw-bold mb-1">
-                                                {tweet.authorName}
-                                            </h2>
-                                            <time
-                                                className="small text-muted"
-                                                dateTime={tweet.createdAt
-                                                    .toDate()
-                                                    .toISOString()}
-                                            >
-                                                {dateFormatter.format(
-                                                    tweet.createdAt.toDate(),
-                                                )}
-                                            </time>
-                                        </header>
-
-                                        <p
-                                            className="mb-0 text-break"
-                                            style={{ whiteSpace: 'pre-wrap' }}
-                                        >
-                                            {tweet.content}
-                                        </p>
-                                    </div>
-                                </article>
+                                    authorId={tweet.authorId}
+                                    authorName={tweet.authorName}
+                                    content={tweet.content}
+                                    createdAt={tweet.createdAt}
+                                />
                             ))}
                         </>
                     )}

@@ -89,7 +89,6 @@ const RegisterPage: React.FC = () => {
 
             dispatch({ type: 'RESET_FORM' });
 
-            // Show a success notification.
             void Swal.fire({
                 toast: true,
                 position: 'top-end',
