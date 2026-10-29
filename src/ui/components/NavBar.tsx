@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { onAuthStateChanged, signOut, type User } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { FirebaseAuth, FirebaseDB } from '../../firebase/config';
@@ -17,7 +17,7 @@ const Navbar: React.FC = () => {
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(FirebaseAuth, async (currentUser) => {
             setUser(currentUser);
-            
+
             if (currentUser) {
                 try {
                     const userDocRef = doc(FirebaseDB, 'users', currentUser.uid);
@@ -90,6 +90,15 @@ const Navbar: React.FC = () => {
                                 Feed
                             </button>
                         </li>
+
+                        {user && (
+                            <li className="nav-item">
+                                <NavLink to="/following" className="nav-link">
+                                    Siguiendo
+                                </NavLink>
+                            </li>
+                        )}
+
                     </ul>
 
                     <ul className="navbar-nav ms-auto align-items-center">
