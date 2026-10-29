@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
-import { Link, Navigate } from 'react-router-dom';
+import { Link, Navigate, useParams } from 'react-router-dom';
 import { FirebaseAuth } from '../firebase/config';
 import { getFollowedUsers } from '../firebase/following';
 import type { FollowedUser } from '../firebase/following';
@@ -13,6 +13,7 @@ type FollowingState =
     | { status: 'success'; users: FollowedUser[] };
 
 const FollowingPage = () => {
+    const { id } = useParams<{ id: string }>();
     const [state, setState] = useState<FollowingState>({
         status: 'loading',
     });
@@ -35,7 +36,7 @@ const FollowingPage = () => {
                 setState({ status: 'loading' });
 
                 try {
-                    const users = await getFollowedUsers(user.uid);
+                    const users = await getFollowedUsers(id ?? user.uid);
 
                     if (!cancelled && currentRequest === requestId) {
                         setState({ status: 'success', users });
@@ -66,7 +67,7 @@ const FollowingPage = () => {
             cancelled = true;
             unsubscribe();
         };
-    }, [retryCount]);
+    }, [id, retryCount]);
 
     const handleRetry = () => {
         setState({ status: 'loading' });

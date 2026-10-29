@@ -1,8 +1,10 @@
+
+import { getFollowedUsers } from '../firebase/following';
+import { getFollowers } from '../firebase/followers';
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
     collection,
-    collectionGroup,
     doc,
     DocumentSnapshot,
     getCountFromServer,
@@ -83,37 +85,24 @@ const ProfilePage: React.FC = () => {
 
                 setProfileUser(userSnapshot.data() as UserProfileData);
 
-                const followingRef = collection(
-                    FirebaseDB,
-                    'users',
-                    id,
-                    'following'
-                );
-
-                const followingSnapshot =
-                    await getCountFromServer(followingRef);
 
                 const tweetsQuery = query(
                     collection(FirebaseDB, 'tweets'),
-                    where('authorId', '==', id)
+                    where('authorId', '==', id),
                 );
 
-                const tweetsSnapshot =
-                    await getCountFromServer(tweetsQuery);
-
-                const followingGroup = await getDocs(
-                    collectionGroup(FirebaseDB, 'following')
-                );
-
-                const followers = followingGroup.docs.filter(
-                    (followingDoc) => followingDoc.id === id
-                );
+                const [followingUsers, followerUsers, tweetsSnapshot] =
+                    await Promise.all([
+                        getFollowedUsers(id),
+                        getFollowers(id),
+                        getCountFromServer(tweetsQuery),
+                    ]);
 
                 if (cancelled) return;
 
-                setFollowingCount(followingSnapshot.data().count);
+                setFollowingCount(followingUsers.length);
+                setFollowersCount(followerUsers.length);
                 setTweetsCount(tweetsSnapshot.data().count);
-                setFollowersCount(followers.length);
             } catch (error) {
                 if (cancelled) return;
 
@@ -293,25 +282,32 @@ const ProfilePage: React.FC = () => {
                                 </div>
 
                                 <div className="col-4">
-                                    <div className="p-3 rounded bg-light h-100">
+                                    <Link
+                                        to={`/profile/${encodeURIComponent(id!)}/following`}
+                                        className="d-block p-3 rounded bg-light h-100 text-decoration-none text-dark"
+                                    >
                                         <div className="fs-4 fw-bold">
                                             {followingCount}
                                         </div>
+
                                         <div className="text-muted small">
                                             Siguiendo
                                         </div>
-                                    </div>
+                                    </Link>
                                 </div>
-
                                 <div className="col-4">
-                                    <div className="p-3 rounded bg-light h-100">
+                                    <Link
+                                        to={`/profile/${encodeURIComponent(id!)}/followers`}
+                                        className="d-block p-3 rounded bg-light h-100 text-decoration-none text-dark"
+                                    >
                                         <div className="fs-4 fw-bold">
                                             {followersCount}
                                         </div>
+
                                         <div className="text-muted small">
                                             Seguidores
                                         </div>
-                                    </div>
+                                    </Link>
                                 </div>
                             </div>
 
