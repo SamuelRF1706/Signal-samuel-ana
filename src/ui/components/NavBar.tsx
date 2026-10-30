@@ -13,12 +13,14 @@ const Navbar: React.FC = () => {
     const navigate = useNavigate();
     const [user, setUser] = useState<User | null>(null);
     const [userData, setUserData] = useState<UserData | null>(null);
+    const [isUserDataLoading, setIsUserDataLoading] = useState<boolean>(true);
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(FirebaseAuth, async (currentUser) => {
             setUser(currentUser);
 
             if (currentUser) {
+                setIsUserDataLoading(true);
                 try {
                     const userDocRef = doc(FirebaseDB, 'users', currentUser.uid);
                     const userDocSnap = await getDoc(userDocRef);
@@ -27,9 +29,12 @@ const Navbar: React.FC = () => {
                     }
                 } catch (error) {
                     console.error("Error fetching user data for Navbar:", error);
+                } finally {
+                    setIsUserDataLoading(false);
                 }
             } else {
                 setUserData(null);
+                setIsUserDataLoading(false);
             }
         });
 
@@ -45,7 +50,9 @@ const Navbar: React.FC = () => {
         }
     };
 
-    const displayName = userData?.fullName || userData?.username || user?.email || 'Profile';
+    const displayName = isUserDataLoading
+        ? 'Cargando...'
+        : userData?.fullName || userData?.username || user?.email || 'Profile';
 
     return (
         <nav className="navbar navbar-expand-md bg-body-tertiary">
@@ -92,13 +99,19 @@ const Navbar: React.FC = () => {
                         </li>
 
                         {user && (
-                            <li className="nav-item">
-                                <NavLink to="/following" className="nav-link">
-                                    Siguiendo
-                                </NavLink>
-                            </li>
+                            <>
+                                <li className="nav-item">
+                                    <NavLink to="/following" className="nav-link">
+                                        Siguiendo
+                                    </NavLink>
+                                </li>
+                                <li className="nav-item">
+                                    <NavLink to="/users" className="nav-link">
+                                        Usuarios
+                                    </NavLink>
+                                </li>
+                            </>
                         )}
-
                     </ul>
 
                     <ul className="navbar-nav ms-auto align-items-center">
