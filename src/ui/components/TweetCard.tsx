@@ -42,7 +42,7 @@ export const TweetCard: React.FC<TweetCardProps> = ({
                         </span>
                     )}
 
-                    <span className="text-muted small ms-sm-auto">
+                    <span className="text-muted small ms-auto">
                         {formatDate(createdAt)}
                     </span>
                 </div>
