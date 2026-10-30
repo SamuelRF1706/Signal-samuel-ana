@@ -132,15 +132,24 @@ const FeedContent = ({ userId }: FeedContentProps) => {
                                 </p>
                             )}
 
-                            {page?.tweets.map((tweet) => (
-                                <TweetCard
-                                    key={tweet.id}
-                                    authorId={tweet.authorId}
-                                    authorName={tweet.authorName}
-                                    content={tweet.content}
-                                    createdAt={tweet.createdAt}
-                                />
-                            ))}
+                            {page?.tweets.map((tweet: any) => {
+                                const authorBase = tweet.authorName.includes('@')
+                                    ? tweet.authorName.split('@')[0]
+                                    : tweet.authorName;
+
+                                const handleUsername = tweet.username || authorBase;
+
+                                return (
+                                    <TweetCard
+                                        key={tweet.id}
+                                        authorId={tweet.authorId}
+                                        authorName={authorBase}
+                                        username={handleUsername}
+                                        content={tweet.content}
+                                        createdAt={tweet.createdAt}
+                                    />
+                                );
+                            })}
                         </>
                     )}
 

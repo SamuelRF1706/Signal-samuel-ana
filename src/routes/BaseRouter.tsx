@@ -7,6 +7,7 @@ import PublishTweetPage from '../pages/PublishTweetPage';
 import ProfilePage from '../pages/ProfilePage';
 import FollowingPage from '../pages/FollowingPage';
 import FollowersPage from "../pages/FollowersPage";
+import UsersPage from "../pages/UsersPage";
 
 
 export const BaseRouter = () => {
@@ -22,6 +23,7 @@ export const BaseRouter = () => {
             <Route path="/profile/:id/followers" element={<FollowersPage />} />
             <Route path="/following" element={<FollowingPage />} />
             <Route path="/followers" element={<FollowersPage />} />
+            <Route path="/users" element={<UsersPage />} />
         </Routes>
     );
 }
