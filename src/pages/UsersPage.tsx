@@ -129,20 +129,20 @@ const UsersPage = () => {
     }
 
     return (
-        <main className="container py-5">
+        <main className="container py-5 text-light">
             <div className="row justify-content-center">
                 <div className="col-12 col-md-8 col-lg-6">
-                    <h1 className="h3 fw-bold mb-2">Explorar Usuarios</h1>
-                    <p className="text-muted mb-4">Descubre y conecta con otros usuarios en la red social.</p>
+                    <h1 className="h3 fw-bold mb-2 text-light">Explorar Usuarios</h1>
+                    <p className="text-secondary mb-4">Descubre y conecta con otros usuarios en la red social.</p>
 
-                    {state.status === 'loading' && <p role="status">Cargando usuarios...</p>}
+                    {state.status === 'loading' && <p role="status" className="text-light">Cargando usuarios...</p>}
 
                     {state.status === 'error' && (
                         <div className="alert alert-danger" role="alert">
-                            <p>{state.message}</p>
+                            <p className="mb-2">{state.message}</p>
                             <button
                                 type="button"
-                                className="btn btn-outline-danger"
+                                className="btn btn-outline-light btn-sm"
                                 onClick={() => setRetryCount((c) => c + 1)}
                             >
                                 Reintentar
@@ -152,34 +152,33 @@ const UsersPage = () => {
 
                     {state.status === 'success' && (
                         state.users.length === 0 ? (
-                            <div className="card border-0 shadow-sm">
+                            <div className="card bg-dark border border-secondary shadow-sm">
                                 <div className="card-body p-4 text-center">
-                                    <h2 className="h5">No hay más usuarios registrados</h2>
+                                    <h2 className="h5 text-light mb-0">No hay más usuarios registrados</h2>
                                 </div>
                             </div>
                         ) : (
-                            <ul className="list-group shadow-sm">
+                            <ul className="list-group shadow-sm border border-secondary rounded overflow-hidden">
                                 {state.users.map((user) => {
                                     const isFollowing = state.followingIds.has(user.id);
                                     const isActionLoading = actionLoadingId === user.id;
 
                                     return (
-                                        <li key={user.id} className="list-group-item p-3">
+                                        <li key={user.id} className="list-group-item bg-dark border-secondary p-3">
                                             <div className="d-flex align-items-center justify-content-between gap-3">
                                                 <Link
                                                     to={`/profile/${encodeURIComponent(user.id)}`}
-                                                    className="text-dark text-decoration-none flex-grow-1 text-break"
+                                                    className="text-light text-decoration-none flex-grow-1 text-break"
                                                 >
-                                                    <h2 className="h6 fw-bold mb-1">{user.fullName}</h2>
-                                                    {user.username && <p className="text-muted small mb-1">@{user.username}</p>}
-                                                    {user.email && <p className="text-muted small mb-0">{user.email}</p>}
+                                                    <h2 className="h6 fw-bold mb-1 text-light">{user.fullName}</h2>
+                                                    {user.username && <p className="text-secondary small mb-1">@{user.username}</p>}
+                                                    {user.email && <p className="text-secondary small mb-0">{user.email}</p>}
                                                 </Link>
 
                                                 <button
                                                     type="button"
-                                                    className={`btn btn-sm ${
-                                                        isFollowing ? 'btn-outline-secondary' : 'btn-dark'
-                                                    }`}
+                                                    className={`btn btn-sm ${isFollowing ? 'btn-outline-secondary text-light' : 'btn-dark text-light'
+                                                        }`}
                                                     onClick={() => handleToggleFollow(user.id)}
                                                     disabled={isActionLoading}
                                                     style={{ minWidth: '95px' }}
@@ -200,7 +199,7 @@ const UsersPage = () => {
                         )
                     )}
 
-                    <Link to="/feed" className="btn btn-outline-dark mt-4">
+                    <Link to="/feed" className="btn btn-outline-light mt-4">
                         Volver al feed
                     </Link>
                 </div>

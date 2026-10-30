@@ -80,17 +80,17 @@ const FollowersPage = () => {
     }
 
     return (
-        <main className="container py-5">
+        <main className="container py-5 text-light">
             <div className="row justify-content-center">
                 <div className="col-12 col-md-8 col-lg-6">
-                    <h1 className="h3 fw-bold mb-2">Seguidores</h1>
+                    <h1 className="h3 fw-bold mb-2 text-light">Seguidores</h1>
 
                     <p className="text-muted mb-4">
                         Las personas que te siguen en Signal.
                     </p>
 
                     {state.status === 'loading' && (
-                        <p role="status">Cargando seguidores...</p>
+                        <p role="status" className='text-light'>Cargando seguidores...</p>
                     )}
 
                     {state.status === 'error' && (
@@ -111,7 +111,7 @@ const FollowersPage = () => {
                         state.users.length === 0 ? (
                             <div className="card border-0 shadow-sm">
                                 <div className="card-body p-4 text-center">
-                                    <h2 className="h5">
+                                    <h2 className="h5 text-light">
                                         Aún no tienes seguidores
                                     </h2>
 
@@ -132,10 +132,10 @@ const FollowersPage = () => {
                                     >
                                         <Link
                                             to={`/profile/${encodeURIComponent(user.id)}`}
-                                            className="d-flex align-items-center justify-content-between gap-3 text-dark text-decoration-none"
+                                            className="d-flex align-items-center justify-content-between gap-3 text-light text-decoration-none"
                                         >
                                             <div className="text-break">
-                                                <h2 className="h6 fw-bold mb-1">
+                                                <h2 className="h6 fw-bold mb-1 text-light">
                                                     {user.fullName}
                                                 </h2>
 
@@ -158,7 +158,7 @@ const FollowersPage = () => {
 
                     <Link
                         to="/feed"
-                        className="btn btn-outline-dark mt-4"
+                        className="btn btn-outline-light mt-4"
                     >
                         Volver al feed
                     </Link>

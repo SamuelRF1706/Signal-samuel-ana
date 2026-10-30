@@ -250,32 +250,32 @@ const ProfilePage: React.FC = () => {
         <main className="container py-5">
             <div className="row justify-content-center">
                 <div className="col-12 col-lg-8">
-                    <section className="card shadow-sm border-0 mb-4">
+                    <section className="card bg-dark text-light border border-secondary shadow-sm mb-4">
                         <div className="card-body p-4">
-                            <h1 className="h3 fw-bold mb-1">
+                            <h1 className="h3 fw-bold mb-1 text-light">
                                 {profileUser.fullName}
                             </h1>
 
-                            <p className="text-muted mb-2">
+                            <p className="text-secondary mb-2">
                                 @{profileUser.username}
                             </p>
 
-                            <p className="mb-0">
-                                <span className="text-muted me-2">
+                            <p className="mb-0 text-light">
+                                <span className="text-secondary me-2">
                                     Email:
                                 </span>
                                 {profileUser.email}
                             </p>
 
-                            <hr />
+                            <hr className="border-secondary" />
 
                             <div className="row text-center g-3">
                                 <div className="col-4">
-                                    <div className="p-3 rounded bg-light h-100">
-                                        <div className="fs-4 fw-bold">
+                                    <div className="p-3 rounded bg-dark text-light border border-secondary h-100">
+                                        <div className="fs-4 fw-bold text-light">
                                             {tweetsCount}
                                         </div>
-                                        <div className="text-muted small">
+                                        <div className="text-secondary small">
                                             Tweets
                                         </div>
                                     </div>
@@ -284,42 +284,43 @@ const ProfilePage: React.FC = () => {
                                 <div className="col-4">
                                     <Link
                                         to={`/profile/${encodeURIComponent(id!)}/following`}
-                                        className="d-block p-3 rounded bg-light h-100 text-decoration-none text-dark"
+                                        className="d-block p-3 rounded bg-dark text-light border border-secondary h-100 text-decoration-none"
                                     >
-                                        <div className="fs-4 fw-bold">
+                                        <div className="fs-4 fw-bold text-light">
                                             {followingCount}
                                         </div>
 
-                                        <div className="text-muted small">
+                                        <div className="text-secondary small">
                                             Siguiendo
                                         </div>
                                     </Link>
                                 </div>
+
                                 <div className="col-4">
                                     <Link
                                         to={`/profile/${encodeURIComponent(id!)}/followers`}
-                                        className="d-block p-3 rounded bg-light h-100 text-decoration-none text-dark"
+                                        className="d-block p-3 rounded bg-dark text-light border border-secondary h-100 text-decoration-none"
                                     >
-                                        <div className="fs-4 fw-bold">
+                                        <div className="fs-4 fw-bold text-light">
                                             {followersCount}
                                         </div>
 
-                                        <div className="text-muted small">
+                                        <div className="text-secondary small">
                                             Seguidores
                                         </div>
                                     </Link>
                                 </div>
                             </div>
+                        </div>
 
-                            <div className="text-end mt-4">
-                                <button
-                                    type="button"
-                                    className="btn btn-outline-dark btn-sm px-4"
-                                    onClick={() => navigate('/feed')}
-                                >
-                                    Back to Feed
-                                </button>
-                            </div>
+                        <div className="text-end mt-4 px-4 pb-4">
+                            <button
+                                type="button"
+                                className="btn btn-outline-light btn-sm px-4"
+                                onClick={() => navigate('/feed')}
+                            >
+                                Back to Feed
+                            </button>
                         </div>
                     </section>
 
@@ -383,8 +384,8 @@ const ProfilePage: React.FC = () => {
                         )}
                     </section>
                 </div>
-            </div>
-        </main>
+            </div >
+        </main >
     );
 };
 
