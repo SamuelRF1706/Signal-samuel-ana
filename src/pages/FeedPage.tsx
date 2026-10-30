@@ -4,14 +4,9 @@ import type { User } from 'firebase/auth';
 import { Link, Navigate, useLocation } from 'react-router-dom';
 import { FirebaseAuth } from '../firebase/config';
 import { getFeedAuthorIds, getFeedPage } from '../firebase/feed';
+import TweetCard from '../ui/components/TweetCard';
 
-
-import type {FeedCursor, FeedPageResult,} from '../firebase/feed';
-
-const dateFormatter = new Intl.DateTimeFormat('es-CO', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-});
+import type { FeedCursor, FeedPageResult } from '../firebase/feed';
 
 interface FeedContentProps {
     userId: string;
@@ -137,37 +132,24 @@ const FeedContent = ({ userId }: FeedContentProps) => {
                                 </p>
                             )}
 
-                            {page?.tweets.map((tweet) => (
-                                <article
-                                    key={tweet.id}
-                                    className="card mb-3"
-                                >
-                                    <div className="card-body">
-                                        <header className="mb-2">
-                                            <h2 className="h6 fw-bold mb-1">
-                                                {tweet.authorName}
-                                            </h2>
-                                            <time
-                                                className="small text-muted"
-                                                dateTime={tweet.createdAt
-                                                    .toDate()
-                                                    .toISOString()}
-                                            >
-                                                {dateFormatter.format(
-                                                    tweet.createdAt.toDate(),
-                                                )}
-                                            </time>
-                                        </header>
+                            {page?.tweets.map((tweet: any) => {
+                                const authorBase = tweet.authorName.includes('@')
+                                    ? tweet.authorName.split('@')[0]
+                                    : tweet.authorName;
 
-                                        <p
-                                            className="mb-0 text-break"
-                                            style={{ whiteSpace: 'pre-wrap' }}
-                                        >
-                                            {tweet.content}
-                                        </p>
-                                    </div>
-                                </article>
-                            ))}
+                                const handleUsername = tweet.username || authorBase;
+
+                                return (
+                                    <TweetCard
+                                        key={tweet.id}
+                                        authorId={tweet.authorId}
+                                        authorName={authorBase}
+                                        username={handleUsername}
+                                        content={tweet.content}
+                                        createdAt={tweet.createdAt}
+                                    />
+                                );
+                            })}
                         </>
                     )}
 
