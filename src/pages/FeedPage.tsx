@@ -5,6 +5,7 @@ import { Link, Navigate, useLocation } from 'react-router-dom';
 import { FirebaseAuth } from '../firebase/config';
 import { getFeedAuthorIds, getFeedPage } from '../firebase/feed';
 import TweetCard from '../ui/components/TweetCard';
+import SuggestedUsers from '../ui/components/SuggestedUsers';
 
 import type { FeedCursor, FeedPageResult } from '../firebase/feed';
 
@@ -93,10 +94,19 @@ const FeedContent = ({ userId }: FeedContentProps) => {
         setRetryCount((current) => current + 1);
     };
 
+
+    const handleFollowingChanged = () => {
+        setIsLoading(true);
+        setErrorMessage(null);
+        setCursors([null]);
+        setPageIndex(0);
+        setRetryCount((current) => current + 1);
+    };
+
     return (
         <main className="container py-4">
-            <div className="row justify-content-center">
-                <div className="col-12 col-md-8 col-lg-6">
+            <div className="row justify-content-center g-4">
+                <div className="col-12 col-lg-7">
                     <div className="d-flex align-items-center justify-content-between mb-4">
                         <h1 className="h3 fw-bold mb-0">Inicio</h1>
 
@@ -184,6 +194,13 @@ const FeedContent = ({ userId }: FeedContentProps) => {
                         </button>
                     </nav>
                 </div>
+                <aside className="col-12 col-lg-4">
+                    <SuggestedUsers
+                        key={userId}
+                        userId={userId}
+                        onFollow={handleFollowingChanged}
+                    />
+                </aside>
             </div>
         </main>
     );
