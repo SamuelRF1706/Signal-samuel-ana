@@ -1,5 +1,5 @@
-import { collection, doc, getDoc, getDocs } from 'firebase/firestore';
-import { FirebaseDB } from './config';
+import {serverTimestamp, setDoc, collection, doc, getDoc, getDocs } from 'firebase/firestore';
+import { FirebaseAuth, FirebaseDB } from './config';
 
 export interface FollowedUser {
     id: string;
@@ -40,5 +40,30 @@ export const getFollowedUsers = async (
 
     return users.sort((first, second) =>
         first.fullName.localeCompare(second.fullName, 'es'),
+    );
+};
+
+export const followUser = async (targetUserId: string): Promise<void> => {
+    const user = FirebaseAuth.currentUser;
+
+    if (!user) {
+        throw new Error('Debes iniciar sesión para seguir usuarios.');
+    }
+
+    if (user.uid === targetUserId) {
+        throw new Error('No puedes seguirte a ti mismo.');
+    }
+
+    const targetProfile = await getDoc(
+        doc(FirebaseDB, 'users', targetUserId),
+    );
+
+    if (!targetProfile.exists()) {
+        throw new Error('Este usuario ya no está disponible.');
+    }
+
+    await setDoc(
+        doc(FirebaseDB, 'users', user.uid, 'following', targetUserId),
+        { createdAt: serverTimestamp() },
     );
 };
