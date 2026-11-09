@@ -1,6 +1,11 @@
 import { FirebaseError } from 'firebase/app';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { FirebaseAuth } from './config';
+import { 
+    signInWithEmailAndPassword, 
+    GoogleAuthProvider, 
+    signInWithPopup 
+} from 'firebase/auth';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { FirebaseAuth, FirebaseDB } from './config';
 
 interface AuthSuccessResult {
     ok: true;
@@ -54,6 +59,56 @@ export const loginUserByCredentials = async (
                 case 'auth/network-request-failed':
                     errorMessage = 'Revisa tu conexión a internet.';
                     break;
+            }
+        }
+
+        return {
+            ok: false,
+            errorMessage,
+        };
+    }
+};
+
+const googleProvider = new GoogleAuthProvider();
+
+export const signInWithGoogle = async (): Promise<AuthResult> => {
+    try {
+        const result = await signInWithPopup(FirebaseAuth, googleProvider);
+        const user = result.user;
+
+        // Check if the user document already exists in Firestore
+        const userRef = doc(FirebaseDB, 'users', user.uid);
+        const userSnap = await getDoc(userRef);
+
+        if (!userSnap.exists()) {
+            const baseUsername = user.email ? user.email.split('@')[0] : 'user';
+
+            await setDoc(userRef, {
+                uid: user.uid,
+                fullName: user.displayName || 'Google User',
+                username: baseUsername,
+                email: user.email,
+                followersCount: 0,
+                followingCount: 0,
+                createdAt: new Date().toISOString(),
+            });
+        }
+
+        return {
+            ok: true,
+            uid: user.uid,
+            email: user.email,
+            displayName: user.displayName,
+            photoURL: user.photoURL,
+        };
+    } catch (error: unknown) {
+        let errorMessage = 'No fue posible iniciar sesión con Google.';
+
+        if (error instanceof FirebaseError) {
+            if (error.code === 'auth/popup-closed-by-user') {
+                errorMessage = 'Se cerró la ventana de inicio de sesión.';
+            } else if (error.code === 'auth/network-request-failed') {
+                errorMessage = 'Revisa tu conexión a internet.';
             }
         }
 

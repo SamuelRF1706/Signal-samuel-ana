@@ -3,7 +3,8 @@ import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { FirebaseAuth, FirebaseDB } from '../firebase/config';
 import { RegisterInput } from '../ui/components/RegisterInput';
-import { useNavigate } from 'react-router-dom';
+import { GoogleAuthButton } from '../ui/components/GoogleAuthButton';
+import { useNavigate, Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
 interface RegisterState {
@@ -48,7 +49,6 @@ const RegisterPage: React.FC = () => {
         dispatch({ type: 'SET_FIELD', field, value });
     };
 
-
     const handleRegister = async (
         e: React.FormEvent<HTMLFormElement>
     ) => {
@@ -84,7 +84,9 @@ const RegisterPage: React.FC = () => {
                 fullName: fullName.trim(),
                 username: username.trim(),
                 email: email.trim(),
-                createdAt: new Date()
+                followersCount: 0,
+                followingCount: 0,
+                createdAt: new Date().toISOString()
             });
 
             dispatch({ type: 'RESET_FORM' });
@@ -122,7 +124,6 @@ const RegisterPage: React.FC = () => {
             setLoading(false);
         }
     };
-
 
     return (
         <section className="container py-5">
@@ -192,6 +193,20 @@ const RegisterPage: React.FC = () => {
                                     {loading ? 'Signing Up...' : 'Sign Up'}
                                 </button>
                             </form>
+
+                            {/* Separador e integración del botón de Google Auth */}
+                            <div className="d-flex align-items-center my-4">
+                                <hr className="flex-grow-1 m-0 text-secondary" />
+                                <span className="px-3 text-muted small">o</span>
+                                <hr className="flex-grow-1 m-0 text-secondary" />
+                            </div>
+
+                            <GoogleAuthButton buttonText="Registrarse con Google" />
+
+                            <p className="text-center text-muted mt-4 mb-0">
+                                Already have an account?{' '}
+                                <Link to="/auth/login">Log in</Link>
+                            </p>
                         </div>
                     </div>
                 </div>
