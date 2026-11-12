@@ -3,11 +3,15 @@ import { Link } from 'react-router-dom';
 import type { Timestamp } from 'firebase/firestore';
 
 export interface TweetCardProps {
+    id?: string;
     authorId: string;
     authorName: string;
     username?: string;
     content: string;
     createdAt: Timestamp;
+    currentUserId: string;
+    isFollowing?: boolean;
+    onToggleFollow?: (authorId: string, isCurrentlyFollowing: boolean) => Promise<void> | void;
 }
 
 const formatDate = (timestamp: Timestamp) => {
@@ -24,8 +28,28 @@ export const TweetCard: React.FC<TweetCardProps> = ({
     username,
     content,
     createdAt,
+    currentUserId,
+    isFollowing = false,
+    onToggleFollow,
 }) => {
     const [isHovered, setIsHovered] = useState(false);
+    const [isLoadingFollow, setIsLoadingFollow] = useState(false);
+
+    const isOwnTweet = authorId === currentUserId;
+
+    const handleFollowClick = async (e: React.MouseEvent) => {
+        e.stopPropagation(); 
+        if (!onToggleFollow || isLoadingFollow) return;
+
+        try {
+            setIsLoadingFollow(true);
+            await onToggleFollow(authorId, isFollowing);
+        } catch (error) {
+            console.error('Error toggling follow state:', error);
+        } finally {
+            setIsLoadingFollow(false);
+        }
+    };
 
     return (
         <article
@@ -43,6 +67,7 @@ export const TweetCard: React.FC<TweetCardProps> = ({
                     <Link
                         to={`/profile/${authorId}`}
                         className="fw-bold text-decoration-none text-light"
+                        onClick={(e) => e.stopPropagation()}
                     >
                         {authorName}
                     </Link>
@@ -53,9 +78,38 @@ export const TweetCard: React.FC<TweetCardProps> = ({
                         </span>
                     )}
 
+                    {!isOwnTweet && (
+                        <span
+                            className={`badge ${
+                                isFollowing ? 'bg-success bg-opacity-25 text-success' : 'bg-info bg-opacity-25 text-info'
+                            }`}
+                            style={{ fontSize: '0.75rem' }}
+                        >
+                            {isFollowing ? 'Siguiendo' : 'Sugerido'}
+                        </span>
+                    )}
+
                     <span className="text-secondary small ms-auto">
                         {formatDate(createdAt)}
                     </span>
+
+                    {!isOwnTweet && onToggleFollow && (
+                        <button
+                            type="button"
+                            className={`btn btn-sm ms-2 ${
+                                isFollowing ? 'btn-outline-secondary text-light' : 'btn-primary'
+                            }`}
+                            onClick={handleFollowClick}
+                            disabled={isLoadingFollow}
+                            style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem' }}
+                        >
+                            {isLoadingFollow
+                                ? 'Procesando...'
+                                : isFollowing
+                                ? 'Siguiendo'
+                                : 'Seguir'}
+                        </button>
+                    )}
                 </div>
 
                 <p className="mb-0 text-break text-light" style={{ whiteSpace: 'pre-wrap' }}>
