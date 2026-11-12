@@ -2,6 +2,10 @@ import {
     addDoc,
     collection,
     serverTimestamp,
+    query,
+    orderBy,
+    limit,
+    getDocs,
 } from 'firebase/firestore';
 import { FirebaseAuth, FirebaseDB } from './config';
 
@@ -30,4 +34,30 @@ export const publishTweet = async (content: string): Promise<string> => {
     });
 
     return document.id;
+};
+
+export interface Tweet {
+    id: string;
+    authorId: string;
+    authorName: string;
+    content: string;
+    createdAt: any;
+}
+
+export const getRecommendedTweets = async (tweetLimit: number = 15): Promise<Tweet[]> => {
+    try {
+        const tweetsRef = collection(FirebaseDB, 'tweets');
+        const q = query(tweetsRef, orderBy('createdAt', 'desc'), limit(tweetLimit));
+        const querySnapshot = await getDocs(q);
+
+        const tweets: Tweet[] = querySnapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...(doc.data() as Omit<Tweet, 'id'>),
+        }));
+
+        return tweets;
+    } catch (error: unknown) {
+        console.error('Error fetching recommended tweets:', error);
+        throw new Error('No se pudieron cargar las publicaciones sugeridas.');
+    }
 };

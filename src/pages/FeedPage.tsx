@@ -3,11 +3,9 @@ import { onAuthStateChanged } from 'firebase/auth';
 import type { User } from 'firebase/auth';
 import { Link, Navigate, useLocation } from 'react-router-dom';
 import { FirebaseAuth } from '../firebase/config';
-import { getFeedAuthorIds, getFeedPage } from '../firebase/feed';
+import { FeedProvider, useFeedContext } from '../context/FeedContext';
 import TweetCard from '../ui/components/TweetCard';
 import SuggestedUsers from '../ui/components/SuggestedUsers';
-
-import type { FeedCursor, FeedPageResult } from '../firebase/feed';
 
 interface FeedContentProps {
     userId: string;
@@ -15,93 +13,18 @@ interface FeedContentProps {
 
 const FeedContent = ({ userId }: FeedContentProps) => {
     const location = useLocation();
+    const {
+        state: { page, pageIndex, isLoading, errorMessage, isRecommended },
+        handleNextPage,
+        handlePreviousPage,
+        handleRetry,
+        handleFollowingChanged,
+    } = useFeedContext();
 
     const successMessage =
         location.state?.successMessage === 'Tweet publicado correctamente.'
             ? 'Tweet publicado correctamente.'
             : null;
-
-    const [page, setPage] = useState<FeedPageResult | null>(null);
-    const [cursors, setCursors] = useState<FeedCursor[]>([null]);
-    const [pageIndex, setPageIndex] = useState(0);
-    const [isLoading, setIsLoading] = useState(true);
-    const [errorMessage, setErrorMessage] = useState<string | null>(null);
-    const [retryCount, setRetryCount] = useState(0);
-
-    const cursor = cursors[pageIndex] ?? null;
-
-    useEffect(() => {
-        let cancelled = false;
-
-        const loadPage = async () => {
-            try {
-                const authorIds = await getFeedAuthorIds(userId);
-                const result = await getFeedPage(authorIds, cursor);
-
-                if (!cancelled) {
-                    setPage(result);
-                    setErrorMessage(null);
-                }
-            } catch (error: unknown) {
-                console.error('Error al cargar el feed:', error);
-
-                if (!cancelled) {
-                    setErrorMessage(
-                        'No fue posible cargar las publicaciones.',
-                    );
-                }
-            } finally {
-                if (!cancelled) {
-                    setIsLoading(false);
-                }
-            }
-        };
-
-        void loadPage();
-
-        return () => {
-            cancelled = true;
-        };
-    }, [userId, cursor, retryCount]);
-
-    const handleNextPage = () => {
-        if (isLoading || !page?.hasMore || !page.nextCursor) {
-            return;
-        }
-
-        setIsLoading(true);
-        setErrorMessage(null);
-        setCursors((current) => [
-            ...current.slice(0, pageIndex + 1),
-            page.nextCursor,
-        ]);
-        setPageIndex((current) => current + 1);
-    };
-
-    const handlePreviousPage = () => {
-        if (isLoading || pageIndex === 0) {
-            return;
-        }
-
-        setIsLoading(true);
-        setErrorMessage(null);
-        setPageIndex((current) => current - 1);
-    };
-
-    const handleRetry = () => {
-        setIsLoading(true);
-        setErrorMessage(null);
-        setRetryCount((current) => current + 1);
-    };
-
-
-    const handleFollowingChanged = () => {
-        setIsLoading(true);
-        setErrorMessage(null);
-        setCursors([null]);
-        setPageIndex(0);
-        setRetryCount((current) => current + 1);
-    };
 
     return (
         <main className="container py-4">
@@ -118,6 +41,13 @@ const FeedContent = ({ userId }: FeedContentProps) => {
                     {successMessage && (
                         <div className="alert alert-success" role="status">
                             {successMessage}
+                        </div>
+                    )}
+
+                    {isRecommended && !isLoading && !errorMessage && (
+                        <div className="alert alert-info py-2 small mb-3" role="status">
+                            <i className="bi bi-lightbulb me-2"></i>
+                            Publicaciones sugeridas para ti. ¡Sigue a otros usuarios para personalizar tu inicio!
                         </div>
                     )}
 
@@ -163,37 +93,40 @@ const FeedContent = ({ userId }: FeedContentProps) => {
                         </>
                     )}
 
-                    <nav
-                        className="d-flex align-items-center justify-content-between mt-4"
-                        aria-label="Paginación del feed"
-                    >
-                        <button
-                            type="button"
-                            className="btn btn-outline-dark"
-                            onClick={handlePreviousPage}
-                            disabled={isLoading || pageIndex === 0}
+                    {!isRecommended && (
+                        <nav
+                            className="d-flex align-items-center justify-content-between mt-4"
+                            aria-label="Paginación del feed"
                         >
-                            Anterior
-                        </button>
+                            <button
+                                type="button"
+                                className="btn btn-outline-dark"
+                                onClick={handlePreviousPage}
+                                disabled={isLoading || pageIndex === 0}
+                            >
+                                Anterior
+                            </button>
 
-                        <span aria-live="polite">
-                            Página {pageIndex + 1}
-                        </span>
+                            <span aria-live="polite">
+                                Página {pageIndex + 1}
+                            </span>
 
-                        <button
-                            type="button"
-                            className="btn btn-outline-dark"
-                            onClick={handleNextPage}
-                            disabled={
-                                isLoading ||
-                                Boolean(errorMessage) ||
-                                !page?.hasMore
-                            }
-                        >
-                            Siguiente
-                        </button>
-                    </nav>
+                            <button
+                                type="button"
+                                className="btn btn-outline-dark"
+                                onClick={handleNextPage}
+                                disabled={
+                                    isLoading ||
+                                    Boolean(errorMessage) ||
+                                    !page?.hasMore
+                                }
+                            >
+                                Siguiente
+                            </button>
+                        </nav>
+                    )}
                 </div>
+
                 <aside className="col-12 col-lg-4">
                     <SuggestedUsers
                         key={userId}
@@ -245,7 +178,11 @@ const FeedPage = () => {
         return <Navigate to="/login" replace />;
     }
 
-    return <FeedContent key={user.uid} userId={user.uid} />;
+    return (
+        <FeedProvider key={user.uid} userId={user.uid}>
+            <FeedContent userId={user.uid} />
+        </FeedProvider>
+    );
 };
 
 export default FeedPage;
