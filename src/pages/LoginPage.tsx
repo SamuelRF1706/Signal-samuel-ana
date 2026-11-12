@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { loginUserByCredentials } from '../firebase/providers';
 import { Link, useNavigate } from 'react-router-dom';
+import { GoogleAuthButton } from '../ui/components/GoogleAuthButton';
 
 const LoginPage = () => {
     const [email, setEmail] = useState('');
@@ -101,6 +102,14 @@ const LoginPage = () => {
                                     {isSubmitting ? 'Logging in...' : 'Log In'}
                                 </button>
                             </form>
+
+                            <div className="d-flex align-items-center my-4">
+                                <hr className="flex-grow-1 m-0 text-secondary" />
+                                <span className="px-3 text-muted small">o</span>
+                                <hr className="flex-grow-1 m-0 text-secondary" />
+                            </div>
+
+                            <GoogleAuthButton buttonText="Iniciar sesión con Google" />
 
                             <p className="text-center text-muted mt-4 mb-0">
                                 Don't have an account?{' '}

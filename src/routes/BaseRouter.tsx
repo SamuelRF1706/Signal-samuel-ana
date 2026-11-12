@@ -8,7 +8,8 @@ import ProfilePage from '../pages/ProfilePage';
 import FollowingPage from '../pages/FollowingPage';
 import FollowersPage from "../pages/FollowersPage";
 import UsersPage from "../pages/UsersPage";
-
+import { FeedProvider } from "../context/FeedContext";
+import { FirebaseAuth } from "../firebase/config";
 
 export const BaseRouter = () => {
     return (
@@ -16,7 +17,14 @@ export const BaseRouter = () => {
             <Route path="/" element={<HomePage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/login" element={<LoginPage />} />
-            <Route path="/feed" element={<FeedPage />} />
+            <Route 
+                path="/feed" 
+                element={
+                    <FeedProvider userId={FirebaseAuth.currentUser?.uid || ''}>
+                        <FeedPage />
+                    </FeedProvider>
+                } 
+            />
             <Route path="/publish" element={<PublishTweetPage />} />
             <Route path="/profile/:id" element={<ProfilePage />} />
             <Route path="/profile/:id/following" element={<FollowingPage />} />
@@ -26,4 +34,4 @@ export const BaseRouter = () => {
             <Route path="/users" element={<UsersPage />} />
         </Routes>
     );
-}
+};
