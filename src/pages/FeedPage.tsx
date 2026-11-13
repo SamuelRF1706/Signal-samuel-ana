@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import type { User } from 'firebase/auth';
+import { collection, onSnapshot } from 'firebase/firestore';
 import { Link, Navigate, useLocation } from 'react-router-dom';
-import { FirebaseAuth } from '../firebase/config';
+import { FirebaseAuth, FirebaseDB } from '../firebase/config';
+import { followUser, unfollowUser } from '../firebase/followingActions';
 import { FeedProvider, useFeedContext } from '../context/FeedContext';
 import TweetCard from '../ui/components/TweetCard';
 import SuggestedUsers from '../ui/components/SuggestedUsers';
@@ -20,6 +22,44 @@ const FeedContent = ({ userId }: FeedContentProps) => {
         handleRetry,
         handleFollowingChanged,
     } = useFeedContext();
+    const [followingIds, setFollowingIds] = useState<string[] | null>(null);
+    const [followingError, setFollowingError] = useState(false);
+    const [followingRetry, setFollowingRetry] = useState(0);
+
+    useEffect(() => {
+        let previousIds: string | null = null;
+        return onSnapshot(
+            collection(FirebaseDB, 'users', userId, 'following'),
+            { includeMetadataChanges: true },
+            (snapshot) => {
+                if (snapshot.metadata.hasPendingWrites) return;
+                const ids = snapshot.docs.map((document) => document.id).sort();
+                const signature = JSON.stringify(ids);
+                setFollowingIds(ids);
+                setFollowingError(false);
+                if (previousIds !== null && previousIds !== signature) {
+                    handleFollowingChanged();
+                }
+                previousIds = signature;
+            },
+            (error) => {
+                console.error('Error watching follow status:', error);
+                setFollowingError(true);
+                setFollowingIds(null);
+            },
+        );
+    }, [userId, handleFollowingChanged, followingRetry]);
+
+    const handleToggleFollow = async (authorId: string, isFollowing: boolean) => {
+        if (FirebaseAuth.currentUser?.uid !== userId || authorId === userId) {
+            throw new Error('No fue posible validar la sesión para esta acción.');
+        }
+        if (isFollowing) {
+            await unfollowUser(userId, authorId);
+        } else {
+            await followUser(userId, authorId);
+        }
+    };
 
     const successMessage =
         location.state?.successMessage === 'Tweet publicado correctamente.'
@@ -48,6 +88,15 @@ const FeedContent = ({ userId }: FeedContentProps) => {
                         <div className="alert alert-info py-2 small mb-3" role="status">
                             <i className="bi bi-lightbulb me-2"></i>
                             Publicaciones sugeridas para ti. ¡Sigue a otros usuarios para personalizar tu inicio!
+                        </div>
+                    )}
+
+                    {followingError && (
+                        <div className="alert alert-danger" role="alert">
+                            No fue posible sincronizar el estado de seguimiento.
+                            <button type="button" className="btn btn-outline-danger btn-sm ms-2" onClick={() => setFollowingRetry((count) => count + 1)}>
+                                Reintentar
+                            </button>
                         </div>
                     )}
 
@@ -87,6 +136,9 @@ const FeedContent = ({ userId }: FeedContentProps) => {
                                         username={handleUsername}
                                         content={tweet.content}
                                         createdAt={tweet.createdAt}
+                                        currentUserId={userId}
+                                        isFollowing={followingIds?.includes(tweet.authorId)}
+                                        onToggleFollow={followingIds === null ? undefined : handleToggleFollow}
                                     />
                                 );
                             })}
@@ -129,7 +181,7 @@ const FeedContent = ({ userId }: FeedContentProps) => {
 
                 <aside className="col-12 col-lg-4">
                     <SuggestedUsers
-                        key={userId}
+                        key={`${userId}:${JSON.stringify(followingIds)}`}
                         userId={userId}
                         onFollow={handleFollowingChanged}
                     />

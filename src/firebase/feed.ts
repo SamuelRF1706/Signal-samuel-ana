@@ -61,6 +61,10 @@ const parseTweet = (
 export const getFeedAuthorIds = async (
     userId: string,
 ): Promise<string[]> => {
+    if (!userId || userId.trim() === '') {
+        return [];
+    }
+
     const followingSnapshot = await getDocs(
         collection(FirebaseDB, 'users', userId, 'following'),
     );
