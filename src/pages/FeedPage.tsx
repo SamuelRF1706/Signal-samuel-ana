@@ -10,6 +10,8 @@ import { useFeedContext } from '../context/useFeedContext';
 import type { Tweet } from '../firebase/feed';
 import TweetCard from '../ui/components/TweetCard';
 import SuggestedUsers from '../ui/components/SuggestedUsers';
+import { Avatar } from '../ui/components/Avatar';
+import { Icon } from '../ui/components/Icon';
 
 interface FeedContentProps {
     userId: string;
@@ -91,16 +93,19 @@ const FeedContent = ({ userId }: FeedContentProps) => {
     };
 
     return (
-        <main className="container py-4">
-            <div className="row justify-content-center g-4">
-                <div className="col-12 col-lg-7">
-                    <div className="d-flex align-items-center justify-content-between mb-4">
-                        <h1 className="h3 fw-bold mb-0">Inicio</h1>
-
-                        <Link to="/publish" className="btn btn-dark">
-                            Tweet
-                        </Link>
-                    </div>
+        <main className="feed-layout">
+            <div className="feed-main">
+                <div>
+                    <header className="feed-heading">
+                        <div><span className="eyebrow">Tu comunidad, a tu ritmo</span><h1>Inicio</h1></div>
+                        <a href="#people-to-follow" className="feed-tag">Personas para seguir</a>
+                    </header>
+                    <Link to="/publish" className="composer-entry" aria-label="Compartir una idea: crear publicación">
+                        <Avatar name={FirebaseAuth.currentUser?.displayName || 'Tu voz'} />
+                        <span className="composer-prompt">¿Qué te gustaría compartir?</span>
+                        <span className="composer-button">Publicar</span>
+                    </Link>
+                    <div className="section-label"><Icon name="home" />Tu feed</div>
 
                     {successMessage && (
                         <div className="alert alert-success" role="status">
@@ -118,7 +123,7 @@ const FeedContent = ({ userId }: FeedContentProps) => {
                     )}
 
                     {isLoading ? (
-                        <p role="status">Cargando publicaciones...</p>
+                        <p role="status" className="loading-state">Cargando publicaciones...</p>
                     ) : errorMessage ? (
                         <div className="alert alert-danger" role="alert">
                             <p>{errorMessage}</p>
@@ -133,7 +138,7 @@ const FeedContent = ({ userId }: FeedContentProps) => {
                     ) : (
                         <>
                             {page?.tweets.length === 0 && (
-                                <p className="text-muted">
+                                <p className="empty-state">
                                     {pageIndex === 0
                                         ? 'Aún no hay publicaciones tuyas ni de las personas que sigues.'
                                         : 'No hay publicaciones en esta página. Puedes volver a la anterior.'}
@@ -145,7 +150,7 @@ const FeedContent = ({ userId }: FeedContentProps) => {
                     )}
 
                     <nav
-                        className="d-flex align-items-center justify-content-between mt-4"
+                        className="pagination-bar"
                         aria-label="Paginación del feed"
                     >
                         <button
@@ -176,31 +181,33 @@ const FeedContent = ({ userId }: FeedContentProps) => {
                     </nav>
 
                     {authorIds && (
-                        <section className="mt-5 pt-4 border-top" aria-labelledby="recommended-tweets-title">
-                            <h2 id="recommended-tweets-title" className="h4 fw-bold">Publicaciones sugeridas</h2>
+                        <section className="recommendations-section" aria-labelledby="recommended-tweets-title">
+                            <div className="section-label"><Icon name="spark" />Más allá de tu comunidad</div>
+                            <h2 id="recommended-tweets-title">Publicaciones sugeridas</h2>
                             <p className="text-muted">Descubre publicaciones de otras personas en Signal.</p>
                             {isLoadingRecommendations ? (
-                                <p role="status">Cargando publicaciones sugeridas...</p>
+                                <p role="status" className="loading-state">Cargando publicaciones sugeridas...</p>
                             ) : recommendationsError ? (
                                 <div className="alert alert-danger" role="alert">
                                     <p>{recommendationsError}</p>
                                     <button type="button" className="btn btn-outline-danger" onClick={handleRecommendationsRetry}>Reintentar</button>
                                 </div>
                             ) : visibleRecommendations.length === 0 ? (
-                                <p className="text-muted">No hay publicaciones sugeridas por ahora.</p>
+                                <p className="empty-state">No hay publicaciones sugeridas por ahora.</p>
                             ) : visibleRecommendations.map(renderTweet)}
                         </section>
                     )}
                 </div>
 
-                <aside className="col-12 col-lg-4">
+            </div>
+            <aside className="feed-aside" id="people-to-follow">
                     <SuggestedUsers
                         key={`${userId}:${JSON.stringify(followingIds)}`}
                         userId={userId}
                         onFollow={handleFollowingChanged}
                     />
-                </aside>
-            </div>
+                <p className="aside-brand-note"><strong>Signal · Tu voz conecta</strong>Un espacio para las ideas que merecen ser compartidas.</p>
+            </aside>
         </main>
     );
 };

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { followUser } from '../../firebase/following';
 import { getSuggestedUsers } from '../../firebase/users';
+import { UserIdentity } from './UserIdentity';
 import type { SuggestedUser } from '../../firebase/users';
 
 interface SuggestedUsersProps {
@@ -86,13 +87,15 @@ const SuggestedUsers = ({ userId, onFollow }: SuggestedUsersProps) => {
 
     return (
         <section
-            className="card border-0 shadow-sm"
+            className="suggested-panel"
             aria-labelledby="suggested-users-title"
         >
-            <div className="card-body p-4">
-                <h2 id="suggested-users-title" className="h5 fw-bold mb-3">
+            <div>
+                <span className="eyebrow">Amplía tu círculo</span>
+                <h2 id="suggested-users-title">
                     Personas para seguir
                 </h2>
+                <p className="panel-description">Encuentra tu próxima conexión.</p>
 
                 {followError && (
                     <p className="alert alert-danger small" role="alert">
@@ -123,39 +126,31 @@ const SuggestedUsers = ({ userId, onFollow }: SuggestedUsersProps) => {
                         No hay sugerencias disponibles por ahora.
                     </p>
                 ) : (
-                    <ul className="list-group list-group-flush">
+                    <ul className="people-list">
                         {users.map((user) => {
                             const isPending = pendingIds.includes(user.id);
 
                             return (
                                 <li
                                     key={user.id}
-                                    className="list-group-item px-0 py-3 d-flex align-items-center justify-content-between gap-3"
+                                    className="person-row"
                                 >
                                     <Link
                                         to={`/profile/${encodeURIComponent(user.id)}`}
                                         className="text-body text-decoration-none text-break"
                                     >
-                                        <span className="d-block fw-semibold">
-                                            {user.fullName}
-                                        </span>
-
-                                        {user.username && (
-                                            <span className="text-muted small">
-                                                @{user.username}
-                                            </span>
-                                        )}
+                                        <UserIdentity name={user.fullName} username={user.username} />
                                     </Link>
 
                                     <button
                                         type="button"
-                                        className="btn btn-light rounded-circle flex-shrink-0"
+                                        className="btn btn-outline-light btn-sm"
                                         aria-label={`Seguir a ${user.fullName}`}
                                         aria-busy={isPending}
                                         disabled={isPending}
                                         onClick={() => void handleFollow(user)}
                                     >
-                                        {isPending ? '…' : '+'}
+                                        {isPending ? 'Siguiendo…' : 'Seguir'}
                                     </button>
                                 </li>
                             );

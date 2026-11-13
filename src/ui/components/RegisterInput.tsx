@@ -32,13 +32,16 @@ export const RegisterInput: React.FC<RegisterInputProps> = ({
                     type={type} 
                     className={`form-control form-control-lg rounded-3 ${icon ? "border-start-0 rounded-end-3" : ""}`} 
                     id={id}
+                    name={id}
+                    autoComplete={id === 'fullName' ? 'name' : id === 'password' ? 'new-password' : id}
+                    aria-describedby={helpText ? `${id}-help` : undefined}
                     placeholder={placeholder}
                     value={value}
                     onChange={onChange}
                     required
                 />
             </div>
-            {helpText && <div className="form-text small text-muted">{helpText}</div>}
+            {helpText && <div id={`${id}-help`} className="form-text small text-muted">{helpText}</div>}
         </div>
     );
 };

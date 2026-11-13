@@ -38,16 +38,16 @@ const LoginPage = () => {
     };
 
     return (
-        <section className="container py-5">
-            <div className="row justify-content-center">
-                <div className="col-12 col-md-8 col-lg-5">
-                    <div className="card border border-light-subtle rounded-4 shadow-sm">
-                        <div className="card-body p-5">
-                            <div className="text-center mb-4">
+        <section className="auth-page">
+            <div className="auth-inner">
+                <div className="auth-inner">
+                    <div className="auth-card">
+                        <div className="auth-card-content">
+                            <div className="auth-brand">
                                 <BrandLogo variant="full" width={320} />
                             </div>
                             <h1 className="fw-bold text-center mb-4 fs-3">
-                                Log in to Signal
+                                Vuelve a conectar
                             </h1>
 
                             <form onSubmit={handleSubmit}>
@@ -56,7 +56,7 @@ const LoginPage = () => {
                                         htmlFor="login-email"
                                         className="form-label fw-semibold"
                                     >
-                                        Email address
+                                        Correo electrónico
                                     </label>
                                     <input
                                         type="email"
@@ -77,7 +77,7 @@ const LoginPage = () => {
                                         htmlFor="login-password"
                                         className="form-label fw-semibold"
                                     >
-                                        Password
+                                        Contraseña
                                     </label>
                                     <input
                                         type="password"
@@ -103,21 +103,17 @@ const LoginPage = () => {
                                     className="btn btn-dark btn-lg w-100 fw-bold rounded-pill py-2"
                                     disabled={isSubmitting}
                                 >
-                                    {isSubmitting ? 'Logging in...' : 'Log In'}
+                                    {isSubmitting ? 'Iniciando sesión…' : 'Iniciar sesión'}
                                 </button>
                             </form>
 
-                            <div className="d-flex align-items-center my-4">
-                                <hr className="flex-grow-1 m-0 text-secondary" />
-                                <span className="px-3 text-muted small">o</span>
-                                <hr className="flex-grow-1 m-0 text-secondary" />
-                            </div>
+                            <div className="auth-separator">o continúa con</div>
 
                             <GoogleAuthButton buttonText="Iniciar sesión con Google" />
 
-                            <p className="text-center text-muted mt-4 mb-0">
-                                Don't have an account?{' '}
-                                <Link to="/register">Register</Link>
+                            <p className="auth-footer">
+                                ¿Aún no tienes cuenta?{' '}
+                                <Link to="/register">Crear una cuenta</Link>
                             </p>
                         </div>
                     </div>

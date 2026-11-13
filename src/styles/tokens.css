@@ -1,0 +1,24 @@
+:root {
+    color-scheme: dark;
+    --signal-violet: #8B5CF6;
+    --signal-cyan: #22D3EE;
+    --signal-pink: #EC4899;
+    --signal-bg: #0C0B14;
+    --signal-surface: #151320;
+    --signal-elevated: #1E1A2D;
+    --signal-text: #F4F2FA;
+    --signal-muted: #B6B1C8;
+    --signal-border: #39334A;
+    --signal-primary: #7C3AED;
+    --signal-primary-hover: #6D28D9;
+    --signal-focus: #22D3EE;
+    --signal-radius: 18px;
+    --signal-radius-sm: 12px;
+    --signal-space-1: 4px;
+    --signal-space-2: 8px;
+    --signal-space-3: 12px;
+    --signal-space-4: 16px;
+    --signal-space-5: 24px;
+    --signal-space-6: 32px;
+    --signal-sidebar: 236px;
+}

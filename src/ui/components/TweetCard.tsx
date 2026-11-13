@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { Timestamp } from 'firebase/firestore';
+import { Avatar } from './Avatar';
 
 export interface TweetCardProps {
     authorId: string;
@@ -31,7 +32,6 @@ export const TweetCard: React.FC<TweetCardProps> = ({
     isFollowing = false,
     onToggleFollow,
 }) => {
-    const [isHovered, setIsHovered] = useState(false);
     const [isLoadingFollow, setIsLoadingFollow] = useState(false);
     const [followError, setFollowError] = useState<string | null>(null);
     const pendingFollow = useRef(false);
@@ -56,60 +56,32 @@ export const TweetCard: React.FC<TweetCardProps> = ({
     };
 
     return (
-        <article
-            className="card border border-secondary shadow-sm mb-3"
-            style={{
-                backgroundColor: isHovered ? '#3a3e43' : '#2f3235',
-                transition: 'background-color 0.2s ease-in-out',
-                cursor: 'pointer',
-            }}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-        >
-            <div className="card-body p-4">
-                <div className="d-flex flex-wrap align-items-center gap-2 mb-2">
-                    <Link
-                        to={`/profile/${authorId}`}
-                        className="fw-bold text-decoration-none text-light"
-                    >
-                        {authorName}
-                    </Link>
-
-                    {username && (
-                        <span className="text-secondary small">
-                            @{username}
-                        </span>
-                    )}
-
-                    {canFollow && (
-                        <span className={`badge ${isFollowing ? 'bg-success bg-opacity-25 text-success' : 'bg-info bg-opacity-25 text-info'}`}>
-                            {isFollowing ? 'Siguiendo' : 'Sugerido'}
-                        </span>
-                    )}
-
-                    <span className="text-secondary small ms-auto">
-                        {formatDate(createdAt)}
-                    </span>
-
-                    {canFollow && (
-                        <button
-                            type="button"
-                            className={`btn btn-sm ms-2 ${isFollowing ? 'btn-outline-secondary text-light' : 'btn-primary'}`}
-                            onClick={handleFollowClick}
-                            disabled={isLoadingFollow}
-                            aria-label={`${isFollowing ? 'Dejar de seguir a' : 'Seguir a'} ${authorName}`}
-                            aria-busy={isLoadingFollow}
-                        >
-                            {isLoadingFollow ? 'Procesando...' : isFollowing ? 'Siguiendo' : 'Seguir'}
-                        </button>
-                    )}
+        <article className="tweet-card">
+            <header className="tweet-heading">
+                <Avatar name={authorName} />
+                <div className="tweet-author">
+                    <Link to={`/profile/${authorId}`}>{authorName}</Link>
+                    <div className="tweet-meta">
+                        {username && <span>@{username}</span>}
+                        <span>{formatDate(createdAt)}</span>
+                    </div>
                 </div>
-
-                <p className="mb-0 text-break text-light" style={{ whiteSpace: 'pre-wrap' }}>
-                    {content}
-                </p>
-                {followError && <p className="alert alert-danger small mt-3 mb-0" role="alert">{followError}</p>}
-            </div>
+                {canFollow && (
+                    <button
+                        type="button"
+                        className={`btn follow-action ${isFollowing ? 'following-action' : 'btn-primary'}`}
+                        onClick={handleFollowClick}
+                        disabled={isLoadingFollow}
+                        aria-label={`${isFollowing ? 'Dejar de seguir a' : 'Seguir a'} ${authorName}`}
+                        title={isFollowing ? 'Dejar de seguir' : 'Seguir'}
+                        aria-busy={isLoadingFollow}
+                    >
+                        {isLoadingFollow ? 'Procesando…' : isFollowing ? <><span className="following-label">Siguiendo</span><span className="follow-label">Dejar de seguir</span></> : 'Seguir'}
+                    </button>
+                )}
+            </header>
+            <p className="tweet-body">{content}</p>
+            {followError && <p className="alert alert-danger tweet-error" role="alert">{followError}</p>}
         </article>
     );
 };

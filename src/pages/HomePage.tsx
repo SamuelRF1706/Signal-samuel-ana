@@ -1,42 +1,30 @@
+import { Link } from 'react-router-dom';
 import { BrandLogo } from '../ui/components/BrandLogo';
+import { Icon } from '../ui/components/Icon';
 
-const HomePage = () => {
-    return (
-        <section className="py-5">
-            <h1 className="display-1 fw-bold text-center">
-                <BrandLogo variant="full" width={480} />
-            </h1>
-            <p className="lead text-center mb-5">
-                La plataforma de mensajería segura y privada
-            </p>
-            <div className="container">
-                <div className="row align-items-start">
-                    <div className="col-md-5">
-                        <span className="text-muted">Nuestra historia</span>
-                        <h2 className="display-5 fw-bold">Sobre nosotros</h2>
-                    </div>
-
-                    <div className="col-md-6 offset-md-1">
-                        <p className="lead">
-                            Creemos que todas las personas tienen una voz
-                            que merece ser escuchada. Nuestra plataforma
-                            conecta a las personas a través de conversaciones,
-                            ideas y novedades en tiempo real, creando un
-                            espacio donde cada opinión puede marcar la diferencia.
-                        </p>
-
-                        <p className="lead">
-                            Conecta con personas que comparten tus intereses,
-                            descubre nuevas perspectivas y mantente informado
-                            sobre lo que te importa. Comparte tus pensamientos,
-                            sigue las últimas tendencias y participa en
-                            conversaciones que te interesan.
-                        </p>
-                    </div>
+const HomePage = () => (
+    <main className="landing-page">
+        <section className="landing-hero" aria-labelledby="landing-title">
+            <div className="landing-copy">
+                <span className="eyebrow">Ideas que encuentran personas</span>
+                <h1 id="landing-title">Tu voz<br /><span>conecta.</span></h1>
+                <p>Comparte lo que piensas. Descubre otras miradas. Conecta con personas que tienen algo que decir.</p>
+                <div className="landing-actions">
+                    <Link to="/register" className="btn btn-primary">Encuentra tu comunidad <Icon name="arrow" /></Link>
+                    <Link to="/login" className="btn btn-outline-light">Ya tengo cuenta</Link>
                 </div>
             </div>
+            <div className="landing-brand">
+                <BrandLogo variant="full" width={480} />
+                <p>Un espacio para expresarte y descubrir nuevas conexiones.</p>
+            </div>
         </section>
-    );
-};
+        <section className="landing-features" aria-label="Descubre Signal">
+            <article className="landing-feature"><Icon name="write" /><h2>Una idea es un comienzo.</h2><p>Comparte pensamientos, preguntas y momentos en publicaciones de hasta 280 caracteres.</p></article>
+            <article className="landing-feature"><Icon name="users" /><h2>Encuentra otras voces.</h2><p>Explora perfiles y sigue a las personas cuyas publicaciones te interesan.</p></article>
+            <article className="landing-feature"><Icon name="spark" /><h2>Haz tuyo el inicio.</h2><p>Tus publicaciones y las de tu comunidad, junto a sugerencias para descubrir algo más.</p></article>
+        </section>
+    </main>
+);
 
 export default HomePage;

@@ -1,3 +1,4 @@
+import { UserIdentity } from '../ui/components/UserIdentity';
 
 import { useEffect, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -79,13 +80,13 @@ const FollowingPage = () => {
     }
 
     return (
-        <main className="container py-5 text-light">
-            <div className="row justify-content-center">
-                <div className="col-12 col-md-8 col-lg-6">
+        <main className="social-page">
+            <div className="page-inner">
+                <div className="page-inner">
                     <h1 className="h3 fw-bold mb-2 text-light">Usuarios seguidos</h1>
 
                     <p className="text-secondary mb-4">
-                        Las personas que sigues en Signal.
+                        {id ? 'Las conexiones de este perfil en Signal.' : 'Las personas que sigues en Signal.'}
                     </p>
 
                     {state.status === 'loading' && (
@@ -108,42 +109,32 @@ const FollowingPage = () => {
 
                     {state.status === 'success' && (
                         state.users.length === 0 ? (
-                            <div className="card bg-dark border border-secondary shadow-sm">
-                                <div className="card-body p-4 text-center">
+                            <div className="empty-state">
+                                <div className="empty-state-copy">
                                     <h2 className="h5 text-light">
-                                        Aún no sigues a ningún usuario
+                                        No hay personas seguidas para mostrar
                                     </h2>
 
                                     <p className="text-secondary mb-0">
-                                        Cuando sigas a alguien, aparecerá aquí.
+                                        Las conexiones de este perfil aparecerán aquí.
                                     </p>
                                 </div>
                             </div>
                         ) : (
                             <ul
-                                className="list-group shadow-sm border border-secondary rounded overflow-hidden"
+                                className="people-list people-surface"
                                 aria-label="Usuarios que sigues"
                             >
                                 {state.users.map((user) => (
                                     <li
                                         key={user.id}
-                                        className="list-group-item bg-dark border-secondary p-3"
+                                        className="person-row"
                                     >
                                         <Link
                                             to={`/profile/${encodeURIComponent(user.id)}`}
                                             className="d-flex align-items-center justify-content-between gap-3 text-light text-decoration-none"
                                         >
-                                            <div className="text-break">
-                                                <h2 className="h6 fw-bold mb-1 text-light">
-                                                    {user.fullName}
-                                                </h2>
-
-                                                {user.username && (
-                                                    <p className="text-secondary small mb-0">
-                                                        @{user.username}
-                                                    </p>
-                                                )}
-                                            </div>
+                                            <UserIdentity name={user.fullName} username={user.username} />
 
                                             <span className="small text-secondary text-nowrap">
                                                 Ver perfil →
@@ -157,9 +148,9 @@ const FollowingPage = () => {
 
                     <Link
                         to="/feed"
-                        className="btn btn-outline-light mt-4"
+                        className="back-link"
                     >
-                        Volver al feed
+                        ← Volver al inicio
                     </Link>
                 </div>
             </div>
