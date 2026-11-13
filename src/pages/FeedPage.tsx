@@ -1,11 +1,17 @@
 import { useEffect, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import type { User } from 'firebase/auth';
+import { collection, onSnapshot } from 'firebase/firestore';
 import { Link, Navigate, useLocation } from 'react-router-dom';
-import { FirebaseAuth } from '../firebase/config';
-import { FeedProvider, useFeedContext } from '../context/FeedContext';
+import { FirebaseAuth, FirebaseDB } from '../firebase/config';
+import { followUser, unfollowUser } from '../firebase/followingActions';
+import { FeedProvider } from '../context/FeedContext';
+import { useFeedContext } from '../context/useFeedContext';
+import type { Tweet } from '../firebase/feed';
 import TweetCard from '../ui/components/TweetCard';
 import SuggestedUsers from '../ui/components/SuggestedUsers';
+import { Avatar } from '../ui/components/Avatar';
+import { Icon } from '../ui/components/Icon';
 
 interface FeedContentProps {
     userId: string;
@@ -14,29 +20,92 @@ interface FeedContentProps {
 const FeedContent = ({ userId }: FeedContentProps) => {
     const location = useLocation();
     const {
-        state: { page, pageIndex, isLoading, errorMessage, isRecommended },
+        state: { page, pageIndex, isLoading, errorMessage, recommendations, isLoadingRecommendations, recommendationsError, authorIds },
         handleNextPage,
         handlePreviousPage,
         handleRetry,
         handleFollowingChanged,
+        handleRecommendationsRetry,
     } = useFeedContext();
+    const [followingIds, setFollowingIds] = useState<string[] | null>(null);
+    const [followingError, setFollowingError] = useState(false);
+    const [followingRetry, setFollowingRetry] = useState(0);
+
+    useEffect(() => {
+        let previousIds: string | null = null;
+        return onSnapshot(
+            collection(FirebaseDB, 'users', userId, 'following'),
+            { includeMetadataChanges: true },
+            (snapshot) => {
+                if (snapshot.metadata.hasPendingWrites) return;
+                const ids = snapshot.docs.map((document) => document.id).sort();
+                const signature = JSON.stringify(ids);
+                setFollowingIds(ids);
+                setFollowingError(false);
+                if (previousIds !== null && previousIds !== signature) {
+                    handleFollowingChanged();
+                }
+                previousIds = signature;
+            },
+            (error) => {
+                console.error('Error watching follow status:', error);
+                setFollowingError(true);
+                setFollowingIds(null);
+            },
+        );
+    }, [userId, handleFollowingChanged, followingRetry]);
+
+    const handleToggleFollow = async (authorId: string, isFollowing: boolean) => {
+        if (FirebaseAuth.currentUser?.uid !== userId || authorId === userId) {
+            throw new Error('No fue posible validar la sesión para esta acción.');
+        }
+        if (isFollowing) {
+            await unfollowUser(userId, authorId);
+        } else {
+            await followUser(userId, authorId);
+        }
+    };
 
     const successMessage =
         location.state?.successMessage === 'Tweet publicado correctamente.'
             ? 'Tweet publicado correctamente.'
             : null;
+    const visibleRecommendations = recommendations.filter(
+        (tweet) => !followingIds?.includes(tweet.authorId),
+    );
+
+    const renderTweet = (tweet: Tweet) => {
+        const authorBase = tweet.authorName.includes('@')
+            ? tweet.authorName.split('@')[0] : tweet.authorName;
+        return (
+            <TweetCard
+                key={tweet.id}
+                authorId={tweet.authorId}
+                authorName={authorBase}
+                username={tweet.username || authorBase}
+                content={tweet.content}
+                createdAt={tweet.createdAt}
+                currentUserId={userId}
+                isFollowing={followingIds?.includes(tweet.authorId)}
+                onToggleFollow={followingIds === null ? undefined : handleToggleFollow}
+            />
+        );
+    };
 
     return (
-        <main className="container py-4">
-            <div className="row justify-content-center g-4">
-                <div className="col-12 col-lg-7">
-                    <div className="d-flex align-items-center justify-content-between mb-4">
-                        <h1 className="h3 fw-bold mb-0">Inicio</h1>
-
-                        <Link to="/publish" className="btn btn-dark">
-                            Tweet
-                        </Link>
-                    </div>
+        <main className="feed-layout">
+            <div className="feed-main">
+                <div>
+                    <header className="feed-heading">
+                        <div><span className="eyebrow">Tu comunidad, a tu ritmo</span><h1>Inicio</h1></div>
+                        <a href="#people-to-follow" className="feed-tag">Personas para seguir</a>
+                    </header>
+                    <Link to="/publish" className="composer-entry" aria-label="Compartir una idea: crear publicación">
+                        <Avatar name={FirebaseAuth.currentUser?.displayName || 'Tu voz'} />
+                        <span className="composer-prompt">¿Qué te gustaría compartir?</span>
+                        <span className="composer-button">Publicar</span>
+                    </Link>
+                    <div className="section-label"><Icon name="home" />Tu feed</div>
 
                     {successMessage && (
                         <div className="alert alert-success" role="status">
@@ -44,15 +113,17 @@ const FeedContent = ({ userId }: FeedContentProps) => {
                         </div>
                     )}
 
-                    {isRecommended && !isLoading && !errorMessage && (
-                        <div className="alert alert-info py-2 small mb-3" role="status">
-                            <i className="bi bi-lightbulb me-2"></i>
-                            Publicaciones sugeridas para ti. ¡Sigue a otros usuarios para personalizar tu inicio!
+                    {followingError && (
+                        <div className="alert alert-danger" role="alert">
+                            No fue posible sincronizar el estado de seguimiento.
+                            <button type="button" className="btn btn-outline-danger btn-sm ms-2" onClick={() => setFollowingRetry((count) => count + 1)}>
+                                Reintentar
+                            </button>
                         </div>
                     )}
 
                     {isLoading ? (
-                        <p role="status">Cargando publicaciones...</p>
+                        <p role="status" className="loading-state">Cargando publicaciones...</p>
                     ) : errorMessage ? (
                         <div className="alert alert-danger" role="alert">
                             <p>{errorMessage}</p>
@@ -67,74 +138,76 @@ const FeedContent = ({ userId }: FeedContentProps) => {
                     ) : (
                         <>
                             {page?.tweets.length === 0 && (
-                                <p className="text-muted">
-                                    No hay publicaciones en esta página.
+                                <p className="empty-state">
+                                    {pageIndex === 0
+                                        ? 'Aún no hay publicaciones tuyas ni de las personas que sigues.'
+                                        : 'No hay publicaciones en esta página. Puedes volver a la anterior.'}
                                 </p>
                             )}
 
-                            {page?.tweets.map((tweet: any) => {
-                                const authorBase = tweet.authorName.includes('@')
-                                    ? tweet.authorName.split('@')[0]
-                                    : tweet.authorName;
-
-                                const handleUsername = tweet.username || authorBase;
-
-                                return (
-                                    <TweetCard
-                                        key={tweet.id}
-                                        authorId={tweet.authorId}
-                                        authorName={authorBase}
-                                        username={handleUsername}
-                                        content={tweet.content}
-                                        createdAt={tweet.createdAt}
-                                    />
-                                );
-                            })}
+                            {page?.tweets.map(renderTweet)}
                         </>
                     )}
 
-                    {!isRecommended && (
-                        <nav
-                            className="d-flex align-items-center justify-content-between mt-4"
-                            aria-label="Paginación del feed"
+                    <nav
+                        className="pagination-bar"
+                        aria-label="Paginación del feed"
+                    >
+                        <button
+                            type="button"
+                            className="btn btn-outline-dark"
+                            onClick={handlePreviousPage}
+                            disabled={isLoading || pageIndex === 0}
                         >
-                            <button
-                                type="button"
-                                className="btn btn-outline-dark"
-                                onClick={handlePreviousPage}
-                                disabled={isLoading || pageIndex === 0}
-                            >
-                                Anterior
-                            </button>
+                            Anterior
+                        </button>
 
-                            <span aria-live="polite">
-                                Página {pageIndex + 1}
-                            </span>
+                        <span aria-live="polite">
+                            Página {pageIndex + 1}
+                        </span>
 
-                            <button
-                                type="button"
-                                className="btn btn-outline-dark"
-                                onClick={handleNextPage}
-                                disabled={
-                                    isLoading ||
-                                    Boolean(errorMessage) ||
-                                    !page?.hasMore
-                                }
-                            >
-                                Siguiente
-                            </button>
-                        </nav>
+                        <button
+                            type="button"
+                            className="btn btn-outline-dark"
+                            onClick={handleNextPage}
+                            disabled={
+                                isLoading ||
+                                Boolean(errorMessage) ||
+                                !page?.hasMore
+                            }
+                        >
+                            Siguiente
+                        </button>
+                    </nav>
+
+                    {authorIds && (
+                        <section className="recommendations-section" aria-labelledby="recommended-tweets-title">
+                            <div className="section-label"><Icon name="spark" />Más allá de tu comunidad</div>
+                            <h2 id="recommended-tweets-title">Publicaciones sugeridas</h2>
+                            <p className="text-muted">Descubre publicaciones de otras personas en Signal.</p>
+                            {isLoadingRecommendations ? (
+                                <p role="status" className="loading-state">Cargando publicaciones sugeridas...</p>
+                            ) : recommendationsError ? (
+                                <div className="alert alert-danger" role="alert">
+                                    <p>{recommendationsError}</p>
+                                    <button type="button" className="btn btn-outline-danger" onClick={handleRecommendationsRetry}>Reintentar</button>
+                                </div>
+                            ) : visibleRecommendations.length === 0 ? (
+                                <p className="empty-state">No hay publicaciones sugeridas por ahora.</p>
+                            ) : visibleRecommendations.map(renderTweet)}
+                        </section>
                     )}
                 </div>
 
-                <aside className="col-12 col-lg-4">
+            </div>
+            <aside className="feed-aside" id="people-to-follow">
                     <SuggestedUsers
-                        key={userId}
+                        key={`${userId}:${JSON.stringify(followingIds)}`}
                         userId={userId}
                         onFollow={handleFollowingChanged}
                     />
-                </aside>
-            </div>
+                <p className="aside-brand-note"><strong>Signal · Tu voz conecta</strong>Un espacio para las ideas que merecen ser compartidas.</p>
+            </aside>
         </main>
     );
 };

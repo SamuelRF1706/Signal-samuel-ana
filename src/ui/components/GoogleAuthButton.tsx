@@ -41,7 +41,6 @@ export const GoogleAuthButton: React.FC<GoogleAuthButtonProps> = ({
                 className="btn btn-outline-light w-100 py-2 d-flex align-items-center justify-content-center gap-2 rounded-pill shadow-sm fw-semibold"
                 disabled={loading}
             >
-                <i className="bi bi-google fs-5"></i>
                 {loading ? 'Conectando...' : buttonText}
             </button>
         </div>

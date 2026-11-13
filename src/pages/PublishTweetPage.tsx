@@ -5,6 +5,8 @@ import type { User } from 'firebase/auth';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { FirebaseAuth } from '../firebase/config';
 import { publishTweet } from '../firebase/tweets';
+import { Avatar } from '../ui/components/Avatar';
+import { Icon } from '../ui/components/Icon';
 
 const PublishTweetPage = () => {
     const navigate = useNavigate();
@@ -79,12 +81,13 @@ const PublishTweetPage = () => {
     }
 
     return (
-        <main className="container py-4">
-            <div className="row justify-content-center">
-                <div className="col-12 col-md-8 col-lg-6">
-                    <h1 className="h3 fw-bold mb-4">Publicar un tweet</h1>
+        <main className="social-page publish-page">
+            <div className="page-inner">
+                <div className="page-inner">
+                    <header className="page-heading"><span className="eyebrow">Tu voz tiene un lugar aquí</span><h1 className="mt-2">Comparte una idea</h1><p>Una idea, una pregunta o algo que vale la pena contar.</p></header>
 
-                    <form onSubmit={handleSubmit}>
+                    <form onSubmit={handleSubmit} className="publish-surface">
+                        <div className="publish-author"><Avatar name={user.displayName || user.email || 'Tu voz'} /><span>Publicando en Signal</span></div>
                         <div className="mb-3">
                             <label
                                 htmlFor="tweet-content"
@@ -97,7 +100,7 @@ const PublishTweetPage = () => {
                                 id="tweet-content"
                                 name="content"
                                 className="form-control"
-                                rows={5}
+                                rows={7}
                                 maxLength={280}
                                 required
                                 value={content}
@@ -110,7 +113,7 @@ const PublishTweetPage = () => {
 
                             <p
                                 id="tweet-counter"
-                                className="text-muted text-end mt-2"
+                                className="publish-counter"
                             >
                                 {content.length}/280
                             </p>
@@ -122,12 +125,12 @@ const PublishTweetPage = () => {
                             </div>
                         )}
 
-                        <div className="d-flex justify-content-between">
+                        <div className="publish-actions">
                             <Link
                                 to="/feed"
                                 className="btn btn-outline-dark"
                             >
-                                Volver al feed
+                                Volver al inicio
                             </Link>
 
                             <button
@@ -138,7 +141,7 @@ const PublishTweetPage = () => {
                                     content.trim().length === 0
                                 }
                             >
-                                {isSubmitting ? 'Publicando...' : 'Publicar'}
+                                <Icon name="write" /> {isSubmitting ? 'Publicando...' : 'Publicar'}
                             </button>
                         </div>
                     </form>
