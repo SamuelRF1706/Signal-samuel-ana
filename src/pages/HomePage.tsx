@@ -1,7 +1,11 @@
+import { BrandLogo } from '../ui/components/BrandLogo';
+
 const HomePage = () => {
     return (
         <section className="py-5">
-            <h1 className="display-1 fw-bold text-center">Signal</h1>
+            <h1 className="display-1 fw-bold text-center">
+                <BrandLogo variant="full" width={480} />
+            </h1>
             <p className="lead text-center mb-5">
                 La plataforma de mensajería segura y privada
             </p>

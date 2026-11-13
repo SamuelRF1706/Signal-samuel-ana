@@ -3,6 +3,7 @@ import type { FormEvent } from 'react';
 import { loginUserByCredentials } from '../firebase/providers';
 import { Link, useNavigate } from 'react-router-dom';
 import { GoogleAuthButton } from '../ui/components/GoogleAuthButton';
+import { BrandLogo } from '../ui/components/BrandLogo';
 
 const LoginPage = () => {
     const [email, setEmail] = useState('');
@@ -42,6 +43,9 @@ const LoginPage = () => {
                 <div className="col-12 col-md-8 col-lg-5">
                     <div className="card border border-light-subtle rounded-4 shadow-sm">
                         <div className="card-body p-5">
+                            <div className="text-center mb-4">
+                                <BrandLogo variant="full" width={320} />
+                            </div>
                             <h1 className="fw-bold text-center mb-4 fs-3">
                                 Log in to Signal
                             </h1>

@@ -4,6 +4,7 @@ import { doc, setDoc, collection, query, where, getDocs } from 'firebase/firesto
 import { FirebaseAuth, FirebaseDB } from '../firebase/config';
 import { RegisterInput } from '../ui/components/RegisterInput';
 import { GoogleAuthButton } from '../ui/components/GoogleAuthButton';
+import { BrandLogo } from '../ui/components/BrandLogo';
 import { useNavigate, Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
@@ -132,7 +133,7 @@ const RegisterPage: React.FC = () => {
                     <div className="card border border-light-subtle rounded-4 shadow-sm">
                         <div className="card-body p-5">
                             <div className="text-center mb-4">
-                                <i className="bi bi-twitter-x fs-1"></i>
+                                <BrandLogo variant="full" width={320} />
                             </div>
 
                             <h2 className="card-title fw-black text-center mb-4 fs-3">

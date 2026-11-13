@@ -214,3 +214,146 @@ Deja los cambios de T02 localmente, sin commit ni push, para que pueda revisarlo
 - Modified: `src/context/FeedContext.tsx`, `src/firebase/feed.ts`, `src/pages/FeedPage.tsx`.
 - Created: `src/context/useFeedContext.ts`, `tests/feed.test.cjs`, `bitacora.md`.
 - Existing log entries were neither edited nor deleted.
+
+## 2026-11-13 15:25:27 -05:00 — Close T02 and implement UI01
+
+- Tool: OpenAI Codex, repository agent. The exact model identifier is not exposed in this session.
+- T02 was validated and committed as `5796a2e` (`fix(feed): preserve required content and pagination`) on `fix/feed-required-content`. Only the six expected T02 files were included.
+- Branch `feature/signal-brand-assets` was created from `5796a2e`. UI01 remains uncommitted. No push, PR, dependency installation, or changes to `main` or `develop` were performed.
+
+### User message (verbatim)
+
+```text
+# Signal — Cierre de T02 e implementación de UI01
+
+Vamos a comenzar la integración de la identidad visual de Signal.
+
+## 1. Preparación y cierre de T02
+
+Actualmente estamos en:
+
+`fix/feed-required-content`
+
+La implementación de T02 está pendiente de commit.
+
+Antes de continuar:
+
+1. Verifica el estado actual de Git.
+2. Confirma que los cambios corresponden únicamente a T02.
+3. Ejecuta TypeScript, build y las pruebas automatizadas.
+4. Si las validaciones pasan, crea el commit:
+
+`fix(feed): preserve required content and pagination`
+
+5. No hagas push ni abras Pull Request.
+6. No modifiques `main` ni `develop`.
+
+Si existen cambios inesperados, detente antes de crear el commit.
+
+## 2. Crear nueva rama
+
+Después de cerrar T02, crea la rama:
+
+`feature/signal-brand-assets`
+
+Debe partir del estado local validado, conservando las funcionalidades implementadas anteriormente.
+
+Indica el commit base utilizado.
+
+## 3. Integrar los recursos de marca
+
+Los recursos originales se encuentran en:
+
+`C:\Users\tdea\Desktop\twitter\marca signal`
+
+Copia los seis archivos gráficos y el README a:
+
+`src/assets/brand/`
+
+Conserva los originales sin modificarlos.
+
+## 4. Crear componente BrandLogo
+
+Implementa un componente reutilizable que admita las variantes:
+
+- `full`: logo completo con eslogan.
+- `horizontal`: logo horizontal.
+- `symbol`: símbolo Signal.
+
+Utiliza:
+
+- `logo-completo.png`
+- `logo-horizontal.png`
+- `simbolo-signal.svg`
+
+El componente debe permitir definir dimensiones sin deformar los archivos y manejar adecuadamente el texto alternativo.
+
+## 5. Aplicar la marca
+
+Integra los recursos en las pantallas existentes:
+
+**Navegación:** logo horizontal en escritorio y símbolo cuando el espacio sea reducido.
+
+**Login y registro:** logo completo con eslogan, adaptado al espacio disponible.
+
+**Inicio público:** logo completo como elemento principal de identidad.
+
+**Favicon:** sustituir el actual por una copia de `simbolo-signal.svg`.
+
+No rediseñes todavía la estructura general de estas pantallas. Eso corresponde a las siguientes tareas UI02 y UI03.
+
+## 6. Restricciones
+
+- No modificar Firebase.
+- No alterar autenticación, registro ni rutas.
+- No modificar el feed ni su paginación.
+- No modificar seguimiento.
+- No instalar dependencias nuevas.
+- No redibujar ni recolorear los logos.
+- No implementar todavía UI02.
+- No hacer push ni abrir PR.
+- No crear un commit de UI01 hasta mi revisión.
+
+## 7. Validaciones
+
+Ejecuta:
+
+- TypeScript.
+- Build.
+- ESLint en archivos modificados.
+
+Comprueba en el código que los logos tienen tamaños responsive y que no se deforman.
+
+Si no puedes verificar visualmente la aplicación, deja esa validación pendiente.
+
+## 8. Entrega
+
+Informa:
+
+1. Commit de T02.
+2. Nueva rama creada.
+3. Archivos incorporados.
+4. Componentes modificados.
+5. Ubicación de cada logo.
+6. Resultado de validaciones.
+7. Estado final de Git.
+
+Deja UI01 implementada localmente, sin commit ni push, para revisión.
+```
+
+### Response summary and incorporated output
+
+- Copied the six graphics and README from the supplied brand directory to `src/assets/brand/`; SHA-256 hashes match every original. The source files were not modified.
+- Created `BrandLogo` with `full`, `horizontal`, and `symbol` variants using the requested PNG/PNG/SVG files. Intrinsic dimensions, automatic aspect ratio, `max-width: 100%`, and `object-fit: contain` prevent stretching. Width and height accept CSS dimensions. Meaningful default alt text, custom alt text, and a decorative mode are supported.
+- Navigation displays the horizontal PNG at widths of 768 px and above, and the SVG symbol below 768 px, using existing Bootstrap display utilities. The brand remains linked to `/`, now with link semantics and a single accessible label.
+- Login and registration use the full PNG at a maximum intended width of 320 px, constrained by their containers. The public home uses the full PNG at 480 px, also constrained by its container. Existing page layouts, handlers and route destinations remain unchanged.
+- `public/favicon.svg` is an identical copy of `simbolo-signal.svg`. The existing HTML reference already uses that path and did not need modification.
+- Before the T02 commit: TypeScript, build, all ten simulated feed tests and targeted ESLint passed. Simulated permission failures printed expected test logs; these were not live Firebase failures.
+- After UI01: TypeScript, build and ESLint passed for `BrandLogo.tsx`, `NavBar.tsx`, `HomePage.tsx`, `LoginPage.tsx` and `RegisterPage.tsx`. `git diff --check` passed. Vite retains the pre-existing warning about the JavaScript bundle exceeding 500 kB.
+- Compared against the T02 base: feed, context, Firebase services, follow actions, routes, publication, profiles, user lists, TweetCard, SuggestedUsers and dependencies remain unchanged. Only brand presentation, favicon and this appended log entry were changed.
+- Browser visual verification was not available. Mobile sizing, transparent logo margins, visual balance and favicon legibility at 16/32 px remain pending. No real authentication, publication or follow operations were executed for UI01.
+
+### Files created or modified for UI01
+
+- Created: `src/ui/components/BrandLogo.tsx` and seven files under `src/assets/brand/` (`logo-completo.png`, `logo-completo.svg`, `logo-horizontal.png`, `logo-horizontal.svg`, `simbolo-signal.png`, `simbolo-signal.svg`, `README.md`).
+- Modified: `src/ui/components/NavBar.tsx`, `src/pages/HomePage.tsx`, `src/pages/LoginPage.tsx`, `src/pages/RegisterPage.tsx`, `public/favicon.svg` and this append-only log.

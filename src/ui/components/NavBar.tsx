@@ -3,6 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { onAuthStateChanged, signOut, type User } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { FirebaseAuth, FirebaseDB } from '../../firebase/config';
+import { BrandLogo } from './BrandLogo';
 
 interface UserData {
     fullName?: string;
@@ -57,13 +58,14 @@ const Navbar: React.FC = () => {
     return (
         <nav className="navbar navbar-expand-md bg-body-tertiary">
             <div className="container-fluid">
-                <span
-                    className="navbar-brand fw-bold"
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => navigate('/')}
+                <NavLink
+                    to="/"
+                    className="navbar-brand"
+                    aria-label="Signal, inicio"
                 >
-                    SIGNAL
-                </span>
+                    <BrandLogo variant="horizontal" width={180} className="d-none d-md-inline-block" decorative />
+                    <BrandLogo variant="symbol" width={40} className="d-inline-block d-md-none" decorative />
+                </NavLink>
 
                 <button
                     className="navbar-toggler"
