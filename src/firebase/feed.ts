@@ -27,6 +27,7 @@ export interface Tweet {
     authorName: string;
     content: string;
     createdAt: Timestamp;
+    username?: string;
 }
 
 export interface FeedPageResult {
@@ -55,6 +56,7 @@ const parseTweet = (
         authorName: data.authorName,
         content: data.content,
         createdAt: data.createdAt,
+        username: typeof data.username === 'string' ? data.username : undefined,
     };
 };
 
@@ -82,7 +84,7 @@ export const getFeedPage = async (
     cursor: FeedCursor = null,
 ): Promise<FeedPageResult> => {
     const snapshots = await Promise.all(
-        authorIds.map((authorId) => {
+        [...new Set(authorIds)].map((authorId) => {
             const constraints: QueryConstraint[] = [
                 where('authorId', '==', authorId),
                 orderBy('createdAt', 'desc'),

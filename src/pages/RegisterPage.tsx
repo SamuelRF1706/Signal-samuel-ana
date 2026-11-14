@@ -4,6 +4,7 @@ import { doc, setDoc, collection, query, where, getDocs } from 'firebase/firesto
 import { FirebaseAuth, FirebaseDB } from '../firebase/config';
 import { RegisterInput } from '../ui/components/RegisterInput';
 import { GoogleAuthButton } from '../ui/components/GoogleAuthButton';
+import { BrandLogo } from '../ui/components/BrandLogo';
 import { useNavigate, Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
@@ -126,18 +127,18 @@ const RegisterPage: React.FC = () => {
     };
 
     return (
-        <section className="container py-5">
-            <div className="row justify-content-center">
-                <div className="col-12 col-md-8 col-lg-5">
-                    <div className="card border border-light-subtle rounded-4 shadow-sm">
-                        <div className="card-body p-5">
-                            <div className="text-center mb-4">
-                                <i className="bi bi-twitter-x fs-1"></i>
+        <section className="auth-page">
+            <div className="auth-inner">
+                <div className="auth-inner">
+                    <div className="auth-card">
+                        <div className="auth-card-content">
+                            <div className="auth-brand">
+                                <BrandLogo variant="full" width={320} />
                             </div>
 
-                            <h2 className="card-title fw-black text-center mb-4 fs-3">
-                                Create your account
-                            </h2>
+                            <h1 className="card-title fw-black text-center mb-4 fs-3">
+                                Tu comunidad empieza aquí
+                            </h1>
 
                             {errorMessage && (
                                 <div className="alert alert-danger py-2 small" role="alert">
@@ -148,16 +149,16 @@ const RegisterPage: React.FC = () => {
                             <form onSubmit={handleRegister}>
                                 <RegisterInput
                                     id="fullName"
-                                    label="Full Name"
+                                    label="Nombre completo"
                                     type="text"
-                                    placeholder="Write your full name"
+                                    placeholder="Tu nombre completo"
                                     value={fullName}
                                     onChange={(e) => handleInputChange('fullName', e.target.value)}
                                 />
 
                                 <RegisterInput
                                     id="username"
-                                    label="Username"
+                                    label="Nombre de usuario"
                                     type="text"
                                     placeholder="nickname"
                                     value={username}
@@ -167,22 +168,22 @@ const RegisterPage: React.FC = () => {
 
                                 <RegisterInput
                                     id="email"
-                                    label="Email address"
+                                    label="Correo electrónico"
                                     type="email"
                                     placeholder="name@example.com"
                                     value={email}
                                     onChange={(e) => handleInputChange('email', e.target.value)}
-                                    helpText="We’ll never share your email with anyone else."
+                                    helpText="Usa un correo al que tengas acceso."
                                 />
 
                                 <RegisterInput
                                     id="password"
-                                    label="Password"
+                                    label="Contraseña"
                                     type="password"
                                     placeholder="••••••••"
                                     value={password}
                                     onChange={(e) => handleInputChange('password', e.target.value)}
-                                    helpText="Must be 8-20 characters long."
+                                    helpText="Elige una contraseña segura."
                                 />
 
                                 <button
@@ -190,22 +191,18 @@ const RegisterPage: React.FC = () => {
                                     className="btn btn-dark btn-lg w-100 fw-bold rounded-pill shadow-sm py-2 mt-3"
                                     disabled={loading}
                                 >
-                                    {loading ? 'Signing Up...' : 'Sign Up'}
+                                    {loading ? 'Creando cuenta…' : 'Crear cuenta'}
                                 </button>
                             </form>
 
                             {/* Separador e integración del botón de Google Auth */}
-                            <div className="d-flex align-items-center my-4">
-                                <hr className="flex-grow-1 m-0 text-secondary" />
-                                <span className="px-3 text-muted small">o</span>
-                                <hr className="flex-grow-1 m-0 text-secondary" />
-                            </div>
+                            <div className="auth-separator">o continúa con</div>
 
                             <GoogleAuthButton buttonText="Registrarse con Google" />
 
-                            <p className="text-center text-muted mt-4 mb-0">
-                                Already have an account?{' '}
-                                <Link to="/auth/login">Log in</Link>
+                            <p className="auth-footer">
+                                ¿Ya tienes cuenta?{' '}
+                                <Link to="/login">Iniciar sesión</Link>
                             </p>
                         </div>
                     </div>

@@ -1,3 +1,4 @@
+import { UserIdentity } from '../ui/components/UserIdentity';
 import { useEffect, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { Link, Navigate } from 'react-router-dom';
@@ -129,10 +130,11 @@ const UsersPage = () => {
     }
 
     return (
-        <main className="container py-5 text-light">
-            <div className="row justify-content-center">
-                <div className="col-12 col-md-8 col-lg-6">
-                    <h1 className="h3 fw-bold mb-2 text-light">Explorar Usuarios</h1>
+        <main className="social-page">
+            <div className="page-inner">
+                <div className="page-inner">
+                    <span className="eyebrow">Tu próxima conexión empieza aquí</span>
+                    <h1 className="mt-2 mb-2">Explorar personas</h1>
                     <p className="text-secondary mb-4">Descubre y conecta con otros usuarios en la red social.</p>
 
                     {state.status === 'loading' && <p role="status" className="text-light">Cargando usuarios...</p>}
@@ -152,43 +154,43 @@ const UsersPage = () => {
 
                     {state.status === 'success' && (
                         state.users.length === 0 ? (
-                            <div className="card bg-dark border border-secondary shadow-sm">
-                                <div className="card-body p-4 text-center">
+                            <div className="empty-state">
+                                <div className="empty-state-copy">
                                     <h2 className="h5 text-light mb-0">No hay más usuarios registrados</h2>
                                 </div>
                             </div>
                         ) : (
-                            <ul className="list-group shadow-sm border border-secondary rounded overflow-hidden">
+                            <ul className="people-list people-surface">
                                 {state.users.map((user) => {
                                     const isFollowing = state.followingIds.has(user.id);
                                     const isActionLoading = actionLoadingId === user.id;
 
                                     return (
-                                        <li key={user.id} className="list-group-item bg-dark border-secondary p-3">
-                                            <div className="d-flex align-items-center justify-content-between gap-3">
+                                        <li key={user.id} className="person-row">
+                                            <div className="directory-person">
                                                 <Link
                                                     to={`/profile/${encodeURIComponent(user.id)}`}
                                                     className="text-light text-decoration-none flex-grow-1 text-break"
                                                 >
-                                                    <h2 className="h6 fw-bold mb-1 text-light">{user.fullName}</h2>
-                                                    {user.username && <p className="text-secondary small mb-1">@{user.username}</p>}
-                                                    {user.email && <p className="text-secondary small mb-0">{user.email}</p>}
+                                                    <UserIdentity name={user.fullName} username={user.username} detail={user.email} />
                                                 </Link>
 
                                                 <button
                                                     type="button"
-                                                    className={`btn btn-sm ${isFollowing ? 'btn-outline-secondary text-light' : 'btn-dark text-light'
+                                                    className={`btn btn-sm ${isFollowing ? 'following-action' : 'btn-primary'
                                                         }`}
+                                                    aria-label={`${isFollowing ? 'Dejar de seguir a' : 'Seguir a'} ${user.fullName}`}
+                                                    title={isFollowing ? 'Dejar de seguir' : 'Seguir'}
                                                     onClick={() => handleToggleFollow(user.id)}
                                                     disabled={isActionLoading}
                                                     style={{ minWidth: '95px' }}
                                                 >
                                                     {isActionLoading ? (
-                                                        <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
+                                                        <span role="status">Procesando…</span>
                                                     ) : isFollowing ? (
-                                                        'Siguiendo'
+                                                        <><span className="following-label">Siguiendo</span><span className="follow-label">Dejar de seguir</span></>
                                                     ) : (
-                                                        '+ Seguir'
+                                                        'Seguir'
                                                     )}
                                                 </button>
                                             </div>
@@ -199,8 +201,8 @@ const UsersPage = () => {
                         )
                     )}
 
-                    <Link to="/feed" className="btn btn-outline-light mt-4">
-                        Volver al feed
+                    <Link to="/feed" className="back-link">
+                        ← Volver al inicio
                     </Link>
                 </div>
             </div>

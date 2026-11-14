@@ -19,6 +19,8 @@ import {
 } from 'firebase/firestore';
 import { FirebaseDB } from '../firebase/config';
 import TweetCard from '../ui/components/TweetCard';
+import { Avatar } from '../ui/components/Avatar';
+import { BrandLogo } from '../ui/components/BrandLogo';
 
 interface UserProfileData {
     uid: string;
@@ -221,16 +223,16 @@ const ProfilePage: React.FC = () => {
 
     if (isLoading) {
         return (
-            <div className="container py-5 text-center" role="status">
+            <div className="social-page loading-state" role="status">
                 <div className="spinner-border text-primary" />
-                <p className="mt-2 text-muted">Loading profile...</p>
+                <p className="mt-2 text-muted">Cargando perfil...</p>
             </div>
         );
     }
 
     if (errorMessage || !profileUser) {
         return (
-            <div className="container py-5">
+            <div className="social-page">
                 <div className="alert alert-danger" role="alert">
                     {errorMessage || 'Profile not available.'}
                 </div>
@@ -240,152 +242,50 @@ const ProfilePage: React.FC = () => {
                     className="btn btn-outline-dark"
                     onClick={() => navigate('/feed')}
                 >
-                    Back to Feed
+                    Volver al inicio
                 </button>
             </div>
         );
     }
 
     return (
-        <main className="container py-5">
-            <div className="row justify-content-center">
-                <div className="col-12 col-lg-8">
-                    <section className="card bg-dark text-light border border-secondary shadow-sm mb-4">
-                        <div className="card-body p-4">
-                            <h1 className="h3 fw-bold mb-1 text-light">
-                                {profileUser.fullName}
-                            </h1>
-
-                            <p className="text-secondary mb-2">
-                                @{profileUser.username}
-                            </p>
-
-                            <p className="mb-0 text-light">
-                                <span className="text-secondary me-2">
-                                    Email:
-                                </span>
-                                {profileUser.email}
-                            </p>
-
-                            <hr className="border-secondary" />
-
-                            <div className="row text-center g-3">
-                                <div className="col-4">
-                                    <div className="p-3 rounded bg-dark text-light border border-secondary h-100">
-                                        <div className="fs-4 fw-bold text-light">
-                                            {tweetsCount}
-                                        </div>
-                                        <div className="text-secondary small">
-                                            Tweets
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="col-4">
-                                    <Link
-                                        to={`/profile/${encodeURIComponent(id!)}/following`}
-                                        className="d-block p-3 rounded bg-dark text-light border border-secondary h-100 text-decoration-none"
-                                    >
-                                        <div className="fs-4 fw-bold text-light">
-                                            {followingCount}
-                                        </div>
-
-                                        <div className="text-secondary small">
-                                            Siguiendo
-                                        </div>
-                                    </Link>
-                                </div>
-
-                                <div className="col-4">
-                                    <Link
-                                        to={`/profile/${encodeURIComponent(id!)}/followers`}
-                                        className="d-block p-3 rounded bg-dark text-light border border-secondary h-100 text-decoration-none"
-                                    >
-                                        <div className="fs-4 fw-bold text-light">
-                                            {followersCount}
-                                        </div>
-
-                                        <div className="text-secondary small">
-                                            Seguidores
-                                        </div>
-                                    </Link>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="text-end mt-4 px-4 pb-4">
-                            <button
-                                type="button"
-                                className="btn btn-outline-light btn-sm px-4"
-                                onClick={() => navigate('/feed')}
-                            >
-                                Back to Feed
-                            </button>
-                        </div>
-                    </section>
-
-                    <section>
-                        <h2 className="h4 fw-bold mb-3">
-                            Publicaciones
-                        </h2>
-
-                        {isLoadingTweets ? (
-                            <div className="text-center py-4">
-                                <div className="spinner-border text-primary" />
-                                <p className="text-muted mt-2">
-                                    Loading tweets...
-                                </p>
-                            </div>
-                        ) : tweets.length === 0 ? (
-                            <div className="alert alert-light border">
-                                This user has not published any tweets yet.
-                            </div>
-                        ) : (
-                            <>
-                                <div className="d-flex flex-column gap-3">
-                                    {tweets.map((tweet) => (
-                                        <TweetCard
-                                            key={tweet.id}
-                                            authorId={tweet.authorId}
-                                            authorName={profileUser.fullName}
-                                            username={profileUser.username}
-                                            content={tweet.content}
-                                            createdAt={tweet.createdAt}
-                                        />
-                                    ))}
-                                </div>
-
-                                <div className="d-flex justify-content-between align-items-center mt-4">
-                                    <span className="text-muted small">
-                                        Página {pageIndex + 1}
-                                    </span>
-
-                                    <div className="d-flex gap-2">
-                                        <button
-                                            type="button"
-                                            className="btn btn-outline-dark btn-sm"
-                                            onClick={handlePreviousPage}
-                                            disabled={pageIndex === 0}
-                                        >
-                                            Anterior
-                                        </button>
-
-                                        <button
-                                            type="button"
-                                            className="btn btn-outline-dark btn-sm"
-                                            onClick={handleNextPage}
-                                            disabled={!hasNextPage}
-                                        >
-                                            Siguiente
-                                        </button>
-                                    </div>
-                                </div>
-                            </>
-                        )}
-                    </section>
+        <main className="social-page profile-page">
+            <header className="page-heading"><span className="eyebrow">Personas que conectan</span><h1 className="mt-2">Perfil</h1></header>
+            <section className="profile-card" aria-label={`Perfil de ${profileUser.fullName}`}>
+                <div className="profile-cover"><BrandLogo variant="symbol" width={52} decorative /></div>
+                <div className="profile-details">
+                    <Avatar name={profileUser.fullName} size="lg" />
+                    <h2 className="profile-name">{profileUser.fullName}</h2>
+                    <p className="profile-handle">@{profileUser.username}</p>
+                    <p className="profile-email">{profileUser.email}</p>
+                    <div className="profile-stats">
+                        <span><strong>{tweetsCount}</strong> publicaciones</span>
+                        <Link to={`/profile/${encodeURIComponent(id!)}/following`}><strong>{followingCount}</strong> siguiendo</Link>
+                        <Link to={`/profile/${encodeURIComponent(id!)}/followers`}><strong>{followersCount}</strong> seguidores</Link>
+                    </div>
                 </div>
-            </div >
-        </main >
+            </section>
+            <section aria-labelledby="profile-posts-title">
+                <h2 id="profile-posts-title" className="mb-4">Publicaciones</h2>
+                {isLoadingTweets ? (
+                    <p className="loading-state" role="status">Cargando publicaciones...</p>
+                ) : tweets.length === 0 ? (
+                    <p className="empty-state">Este usuario todavía no tiene publicaciones para mostrar.</p>
+                ) : <>
+                    {tweets.map((tweet) => (
+                        <TweetCard key={tweet.id} authorId={tweet.authorId} authorName={profileUser.fullName} username={profileUser.username} content={tweet.content} createdAt={tweet.createdAt} />
+                    ))}
+                    <nav className="pagination-bar" aria-label="Paginación de publicaciones del perfil">
+                        <span>Página {pageIndex + 1}</span>
+                        <div className="d-flex gap-2">
+                            <button type="button" className="btn btn-outline-light btn-sm" onClick={handlePreviousPage} disabled={pageIndex === 0}>Anterior</button>
+                            <button type="button" className="btn btn-outline-light btn-sm" onClick={handleNextPage} disabled={!hasNextPage}>Siguiente</button>
+                        </div>
+                    </nav>
+                </>}
+            </section>
+            <Link to="/feed" className="back-link">← Volver al inicio</Link>
+        </main>
     );
 };
 
